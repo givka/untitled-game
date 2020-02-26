@@ -2,8 +2,9 @@ cmake_minimum_required(VERSION 3.14)
 project(untilted-game)
 
 file(GLOB helloworld_SRC
-        "*.h"
-        "*.cpp"
+        "main.cpp"
+        "src/*.h"
+        "src/*.cpp"
         "includes/imgui/*.h"
         "includes/imgui/*.cpp"
         "includes/imgui/examples/imgui_impl_glfw.h"

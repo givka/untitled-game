@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include <vector>
+#include "src/ui.h"
 
 const char *vertexShaderSource = "#version 330 core\n"
                                  "layout (location = 0) in vec3 aPos;\n"
@@ -23,25 +24,7 @@ const char *fragmentShaderSource = "#version 330 core\n"
                                    "   FragColor = vec4(1.0f, 0.7f, 0.2f, 1.0f);\n"
                                    "}\n\0";
 
-float pixel_ratio()
-{
-    // Computes pixel ratio for hidpi devices
-    int buf_size[2];
-    int win_size[2];
-    GLFWwindow *window = glfwGetCurrentContext();
-    glfwGetFramebufferSize(window, &buf_size[0], &buf_size[1]);
-    glfwGetWindowSize(window, &win_size[0], &win_size[1]);
-    return (float) buf_size[0] / (float) win_size[0];
-}
 
-float hidpi_scaling()
-{
-    // Computes scaling factor for hidpi devices
-    float xscale, yscale;
-    GLFWwindow *window = glfwGetCurrentContext();
-    glfwGetWindowContentScale(window, &xscale, &yscale);
-    return 0.5f * (xscale + yscale);
-}
 
 static void glfw_error_callback(int error, const char *description)
 {
@@ -131,17 +114,7 @@ int main()
         return 1;
     }
 
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO &io = ImGui::GetIO();
 
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsClassic();
-
-    // Setup Platform/Renderer bindings
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init(glsl_version);
 
 
     // build and compile our shader program
@@ -189,8 +162,6 @@ int main()
     glDeleteShader(fragmentShader);
 
 
-    // set up vertex data (and buffer(s)) and configure vertex attributes
-    // ------------------------------------------------------------------
     float vertices[] = {
             0.5f, 0.5f, 0.0f,  // top right
             0.5f, -0.5f, 0.0f,  // bottom right
@@ -217,19 +188,10 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    // Our state
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    bool isVSync{ false };
-    vSyncCallback(isVSync);
-    float hidpi_scaling_ = hidpi_scaling();
-    float pixel_ratio_ = pixel_ratio();
-    io.Fonts->Clear();
-    io.Fonts->AddFontFromFileTTF("../includes/imgui/misc/fonts/DroidSans.ttf",
-                                 14 * hidpi_scaling_);
-    io.FontGlobalScale = 1.0f / pixel_ratio_;
+    Ui::init(window, glsl_version);
 
-    bool showDemo{ true };
+
 
     while (!glfwWindowShouldClose(window))
     {
@@ -240,14 +202,6 @@ int main()
         glfwGetWindowSize(window, &window_w, &window_h);
 
         glfwPollEvents();
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-
-        ImGui::NewFrame();
-
-        ImGui::ShowDemoWindow(&showDemo);
-
-        ImGui::Render();
 
         glViewport(0, 0, display_w, display_h);
         glClearColor(0, 0, 0, 1);
@@ -256,7 +210,10 @@ int main()
         glBindVertexArray(VAO);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        //ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        Ui::render();
+
         glfwSwapBuffers(window);
     }
 
