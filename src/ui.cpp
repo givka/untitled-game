@@ -4,9 +4,10 @@
 #include <string_view>
 #include <GLFW/glfw3.h>
 #include "ui.h"
+#include "settings.h"
 
 bool Ui::showDebug = true;
-bool Ui::showDemo = true;
+bool Ui::showDemo = false;
 ImGuiIO *Ui::io{ nullptr };
 
 void Ui::init(GLFWwindow *window, std::string_view glslVersion)
@@ -33,6 +34,21 @@ void Ui::render()
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+
+    if (showDebug)
+    {
+        ImGui::Begin("Demo!", &showDebug);
+        ImGui::Checkbox("Demo Window", &showDemo);
+        if (ImGui::Checkbox("VSync", &Settings::isVSync)){
+            glfwSwapInterval(Settings::isVSync);
+        }
+
+
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
+                    1000.0f / ImGui::GetIO().Framerate,
+                    ImGui::GetIO().Framerate);
+        ImGui::End();
+    }
 
     if (showDemo)
         ImGui::ShowDemoWindow(&showDemo);

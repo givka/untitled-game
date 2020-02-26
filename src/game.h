@@ -11,14 +11,12 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <array>
+#include "sprite_renderer.h"
+#include <random>
 
 // Represents the current state of the game
-enum GameState
-{
-    GAME_ACTIVE,
-    GAME_MENU,
-    GAME_WIN
-};
+
 
 // Game holds all game-related state and functionality.
 // Combines all game-related data into a single class for
@@ -26,25 +24,34 @@ enum GameState
 class Game
 {
 public:
+    enum State
+    {
+        ACTIVE,
+        MENU,
+        WIN
+    };
+
     // Game state
-    GameState State;
-    GLboolean Keys[1024];
-    GLuint Width, Height;
+    static State state;
+    static std::array<bool, 1024> keys;
+    static int width;
+    static int height;
 
-    // Constructor/Destructor
-    Game(GLuint width, GLuint height);
+    static void destroy();
 
-    ~Game();
+    static void init(int width, int height);
 
-    // Initialize game state (load all shaders/textures/levels)
-    void Init();
+    static void processInput(GLfloat dt);
 
-    // GameLoop
-    void ProcessInput(GLfloat dt);
+    static void update(GLfloat dt);
 
-    void Update(GLfloat dt);
+    static void render();
 
-    void Render();
+private :
+    static SpriteRenderer *renderer;
+    static std::mt19937 mersenne;
+
+    static glm::vec2 getRandomPos();
 };
 
 #endif

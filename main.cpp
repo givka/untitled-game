@@ -8,215 +8,131 @@
 #include <fmt/core.h>
 #include <iostream>
 
-#include <vector>
 #include "src/ui.h"
+#include "src/game.h"
+#include "src/resource_manager.h"
+#include "src/settings.h"
 
-const char *vertexShaderSource = "#version 330 core\n"
-                                 "layout (location = 0) in vec3 aPos;\n"
-                                 "void main()\n"
-                                 "{\n"
-                                 "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-                                 "}\0";
-const char *fragmentShaderSource = "#version 330 core\n"
-                                   "out vec4 FragColor;\n"
-                                   "void main()\n"
-                                   "{\n"
-                                   "   FragColor = vec4(1.0f, 0.7f, 0.2f, 1.0f);\n"
-                                   "}\n\0";
+constexpr int WIDTH = 800;
+constexpr int HEIGHT = 600;
 
-
-
-static void glfw_error_callback(int error, const char *description)
+void errorCallback(int error, const char *description)
 {
-    fprintf(stderr, "Glfw Error %d: %s\n", error, description);
+    fprintf(stderr, "glfw Error %d: %s\n", error, description);
 }
 
-void vSyncCallback(const bool &isVSync)
-{
-    glfwSwapInterval(isVSync);
-}
-
-void draw(GLFWwindow *window)
-{
-    // Rendering code goes here
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glfwSwapBuffers(window);
-}
 
 void framebufferSizeCallback(GLFWwindow *window, int width, int height)
 {
-    // make sure the viewport matches the new window dimensions; note that width and
-    // height will be significantly larger than specified on retina displays.
+    glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(width),
+                                      static_cast<GLfloat>(height), 0.0f, -1.0f,
+                                      1.0f);
+    ResourceManager::GetShader("sprite").SetMatrix4("projection", projection);
+    Game::width = width;
+    Game::height = height;
     glViewport(0, 0, width, height);
-    // Re-render the scene because the current frame was drawn for the old resolution
-    draw(window);
+    glfwSwapBuffers(window);
+}
+
+void keyCallback(GLFWwindow *window, int key, int, int action, int)
+{
+    // When a user presses the escape key, we set the WindowShouldClose property to true, closing the application
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, GL_TRUE);
+    if (key >= 0 && key < 1024)
+    {
+        if (action == GLFW_PRESS)
+            Game::keys[key] = GL_TRUE;
+        else if (action == GLFW_RELEASE)
+            Game::keys[key] = GL_FALSE;
+    }
 }
 
 int main()
 {
-
-    // Setup window
-    glfwSetErrorCallback(glfw_error_callback);
+    glfwSetErrorCallback(errorCallback);
     if (!glfwInit())
         return 1;
 
-    // Decide GL+GLSL versions
 #ifdef __APPLE__
-    // GL 3.2 + GLSL 150
     const char *glsl_version = "#version 150";
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 #elif __linux__
-    // GL 3.2 + GLSL 150
     const char* glsl_version = "#version 150";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 #elif _WIN32
-    // GL 3.0 + GLSL 130
-     const char*glsl_version = "#version 130";
+    const char*glsl_version = "#version 130";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 #endif
 
-#ifdef _WIN32
-    // if it's a HighDPI monitor, try to scale everything
-    GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-    float xscale, yscale;
-    glfwGetMonitorContentScale(monitor, &xscale, &yscale);
-    if (xscale > 1 || yscale > 1)
-    {
-        highDPIscaleFactor = xscale;
-        glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
-    }
-#elif __APPLE__
+#if __APPLE__
     glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, true);
-
 #endif
 
 
     // Create window with graphics context
-    GLFWwindow *window = glfwCreateWindow(1280, 720,
-                                          "Dear ImGui GLFW+OpenGL3 example",
+    GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT,
+                                          "Untitled Game",
                                           nullptr, nullptr);
     if (window == nullptr)
         return 1;
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+    glfwSetKeyCallback(window, keyCallback);
+    glfwSwapInterval(Settings::isVSync);
 
-    // Initialize OpenGL loader
-    bool err = glewInit() != GLEW_OK;
-    if (err)
+    if (glewInit() != GLEW_OK)
     {
         fprintf(stderr, "Failed to initialize OpenGL loader!\n");
         return 1;
     }
 
+    // OpenGL configuration
+    int width,height;
+    glfwGetFramebufferSize(window, &width, &height);
+    glViewport(0, 0, width, height);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
-
-    // build and compile our shader program
-    // ------------------------------------
-    // vertex shader
-    int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
-    glCompileShader(vertexShader);
-    // check for shader compile errors
-    int success;
-    char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog
-                  << std::endl;
-    }
-    // fragment shader
-    int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
-    glCompileShader(fragmentShader);
-    // check for shader compile errors
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog
-                  << std::endl;
-    }
-    // link shaders
-    int shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-    // check for linking errors
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success)
-    {
-        glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
-        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog
-                  << std::endl;
-    }
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
-
-    float vertices[] = {
-            0.5f, 0.5f, 0.0f,  // top right
-            0.5f, -0.5f, 0.0f,  // bottom right
-            -0.5f, -0.5f, 0.0f,  // bottom left
-            -0.5f, 0.5f, 0.0f   // top left
-    };
-    unsigned int indices[] = {  // note that we start from 0!
-            0, 1, 3,  // first Triangle
-            1, 2, 3   // second Triangle
-    };
-    unsigned int VBO, VAO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-                 GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
-                          (void *) nullptr);
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-
+    Game::init(width, height);
     Ui::init(window, glsl_version);
 
+    float deltaTime{};
+    float lastFrame{};
 
+    Game::state = Game::MENU;
 
     while (!glfwWindowShouldClose(window))
     {
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-
-        int window_w, window_h;
-        glfwGetWindowSize(window, &window_w, &window_h);
-
+        float currentFrame{ static_cast<float>(glfwGetTime()) };
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
         glfwPollEvents();
 
-        glViewport(0, 0, display_w, display_h);
+        Game::processInput(deltaTime);
+        Game::update(deltaTime);
+
         glClearColor(0.2, 0.2, 0.2, 1);
         glClear(GL_COLOR_BUFFER_BIT);
-        glUseProgram(shaderProgram);
-        glBindVertexArray(VAO);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
+        Game::render();
         Ui::render();
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         glfwSwapBuffers(window);
     }
 
+    Game::destroy();
+    ResourceManager::Clear();
     Ui::destroy();
+
+
 
     glfwDestroyWindow(window);
     glfwTerminate();
