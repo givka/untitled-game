@@ -5,3 +5,4 @@
 #include "settings.h"
 
 bool Settings::isVSync{ false };
+float Settings::treeSpeed{ 100.0 };

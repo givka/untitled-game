@@ -14,6 +14,7 @@
 #include <array>
 #include "sprite_renderer.h"
 #include <random>
+#include <entt/entt.hpp>
 
 // Represents the current state of the game
 
@@ -50,8 +51,11 @@ public:
 private :
     static SpriteRenderer *renderer;
     static std::mt19937 mersenne;
+    static entt::registry registry;
 
     static glm::vec2 getRandomPos();
+    static glm::vec2 getRandomVel();
+
 };
 
 #endif

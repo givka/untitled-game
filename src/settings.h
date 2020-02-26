@@ -9,6 +9,7 @@ class Settings
 {
 public:
     static bool isVSync;
+    static float treeSpeed;
 };
 
 #endif //UNTILTED_GAME_SETTINGS_H

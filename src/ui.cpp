@@ -39,14 +39,15 @@ void Ui::render()
     {
         ImGui::Begin("Demo!", &showDebug);
         ImGui::Checkbox("Demo Window", &showDemo);
-        if (ImGui::Checkbox("VSync", &Settings::isVSync)){
+
+        ImGui::SliderFloat("Tree speed", &Settings::treeSpeed,0.,1000.);
+        if (ImGui::Checkbox("VSync", &Settings::isVSync))
             glfwSwapInterval(Settings::isVSync);
-        }
-
-
+        ImGui::SameLine();
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
                     1000.0f / ImGui::GetIO().Framerate,
                     ImGui::GetIO().Framerate);
+
         ImGui::End();
     }
 
