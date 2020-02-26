@@ -204,22 +204,19 @@ int main()
         glfwPollEvents();
 
         glViewport(0, 0, display_w, display_h);
-        glClearColor(0, 0, 0, 1);
+        glClearColor(0.2, 0.2, 0.2, 1);
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-        //ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         Ui::render();
 
         glfwSwapBuffers(window);
     }
 
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
+    Ui::destroy();
 
     glfwDestroyWindow(window);
     glfwTerminate();

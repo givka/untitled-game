@@ -43,6 +43,9 @@ void Ui::render()
 
 void Ui::destroy()
 {
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 }
 
 float Ui::getPixelRatio()

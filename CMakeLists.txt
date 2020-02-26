@@ -14,9 +14,9 @@ file(GLOB helloworld_SRC
         "includes/stb/*.h"
         )
 
-include_directories(includes/imgui)
+include_directories(includes/imgui lib/SOIL/inc/SOIL)
 
-add_executable(main ${helloworld_SRC} main.cpp)
+add_executable(main ${helloworld_SRC} main.cpp src/game.cpp src/game.h src/shader.cpp src/shader.h src/texture.cpp src/texture.h src/resource_manager.cpp src/resource_manager.h)
 
 set_property(TARGET main PROPERTY CXX_STANDARD 17)
 target_compile_options(main PRIVATE -Wall -Wextra)
@@ -37,4 +37,8 @@ target_link_libraries(main PRIVATE glm)
 # fmt
 add_subdirectory(lib/fmt EXCLUDE_FROM_ALL)
 target_link_libraries(main PRIVATE fmt::fmt)
+
+# SOIL
+add_subdirectory(lib/SOIL EXCLUDE_FROM_ALL)
+target_link_libraries(main PRIVATE soil)
 
