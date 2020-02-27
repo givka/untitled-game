@@ -19,3 +19,6 @@
 [submodule "includes/entt"]
 	path = includes/entt
 	url = https://github.com/skypjack/entt.git
+[submodule "includes/SimplexNoise"]
+	path = includes/SimplexNoise
+	url = https://github.com/SRombauts/SimplexNoise.git

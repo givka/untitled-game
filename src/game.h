@@ -36,6 +36,13 @@ public:
         float y;
     };
 
+    struct color
+    {
+        float r;
+        float g;
+        float b;
+    };
+
     enum State
     {
         ACTIVE,
@@ -68,4 +75,6 @@ private :
     glm::vec2 getRandomVel();
 
     static bool frustumCulled(const position &pos, const size &siz);
+
+    float getRandomReal(float min, float max);
 };

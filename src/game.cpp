@@ -30,6 +30,10 @@ Game::Game()
             auto entity = this->registry.create();
             this->registry.assign<position>(entity, x, y);
             this->registry.assign<size>(entity, 32, 32);
+            this->registry.assign<color>(entity,
+                                         this->getRandomReal(0, 1),
+                                         this->getRandomReal(0, 1),
+                                         this->getRandomReal(0, 1));
             ++this->nbEntities;
         }
     }
@@ -38,6 +42,7 @@ Game::Game()
 void Game::destroy()
 {
 }
+
 
 void Game::update(GLfloat dt)
 {
@@ -95,7 +100,7 @@ void Game::render()
 
     this->nbShowed = 0;
 
-    auto func = [this](const position &pos, const size &siz)
+    auto func = [this](const position &pos, const size &siz, const color &col)
     {
         if (frustumCulled(pos, siz))
             return;
@@ -105,10 +110,10 @@ void Game::render()
                                    glm::vec2(pos.x, pos.y) - glm::vec2(siz.x / 2, siz.y / 2),
                                    glm::vec2(siz.x, siz.y),
                                    0.0f,
-                                   glm::vec3(1.0f, 1.0f, 1.0f));
+                                   glm::vec3(col.r, col.g, col.b));
     };
 
-    this->registry.view<position, size>().each(func);
+    this->registry.view<position, size, color>().each(func);
 }
 
 glm::vec2 Game::getRandomVel()
@@ -116,6 +121,12 @@ glm::vec2 Game::getRandomVel()
     std::uniform_real_distribution angle{ 0., glm::two_pi<double>() };
     auto val = angle(this->randgen);
     return glm::vec2(glm::cos(val), glm::sin(val));
+}
+
+float Game::getRandomReal(float min, float max)
+{
+    std::uniform_real_distribution distribution{ min, max };
+    return distribution(this->randgen);
 }
 
 bool Game::frustumCulled(const position &pos, const size &siz)

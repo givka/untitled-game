@@ -12,9 +12,11 @@ file(GLOB helloworld_SRC
         "includes/imgui/examples/imgui_impl_opengl3.h"
         "includes/imgui/examples/imgui_impl_opengl3.cpp"
         "includes/stb/*.h"
+        "includes/SimplexNoise/src/SimplexNoise.h"
+        "includes/SimplexNoise/src/SimplexNoise.cpp"
         )
 
-include_directories(includes/imgui lib/SOIL/inc/SOIL includes/entt/single_include/)
+include_directories(includes includes/imgui lib/SOIL/inc/SOIL includes/entt/single_include/)
 
 add_executable(main ${helloworld_SRC} main.cpp src/game.cpp src/game.h src/shader.cpp src/shader.h src/texture.cpp src/texture.h src/resource_manager.cpp src/resource_manager.h src/sprite_renderer.cpp src/sprite_renderer.h src/settings.cpp src/settings.h src/camera.cpp src/camera.h src/global.h src/timer.h)
 
