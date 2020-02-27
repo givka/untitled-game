@@ -6,3 +6,4 @@
 
 bool Settings::isVSync{ false };
 float Settings::treeSpeed{ 100.0 };
+float Settings::camSpeed{ 500.0 };

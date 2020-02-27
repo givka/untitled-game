@@ -10,6 +10,7 @@ class Settings
 public:
     static bool isVSync;
     static float treeSpeed;
+    static float camSpeed;
 };
 
 #endif //UNTILTED_GAME_SETTINGS_H

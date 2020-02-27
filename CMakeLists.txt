@@ -16,7 +16,7 @@ file(GLOB helloworld_SRC
 
 include_directories(includes/imgui lib/SOIL/inc/SOIL includes/entt/single_include)
 
-add_executable(main ${helloworld_SRC} main.cpp src/game.cpp src/game.h src/shader.cpp src/shader.h src/texture.cpp src/texture.h src/resource_manager.cpp src/resource_manager.h src/sprite_renderer.cpp src/sprite_renderer.h src/settings.cpp src/settings.h)
+add_executable(main ${helloworld_SRC} main.cpp src/game.cpp src/game.h src/shader.cpp src/shader.h src/texture.cpp src/texture.h src/resource_manager.cpp src/resource_manager.h src/sprite_renderer.cpp src/sprite_renderer.h src/settings.cpp src/settings.h src/camera.cpp src/camera.h)
 
 set_property(TARGET main PROPERTY CXX_STANDARD 17)
 target_compile_options(main PRIVATE -Wall -Wextra)

@@ -48,6 +48,7 @@ SpriteRenderer::DrawSprite(Texture &texture, glm::vec2 position, glm::vec2 size,
 
     glBindVertexArray(this->quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
+    // glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 10000);
     glBindVertexArray(0);
 }
 

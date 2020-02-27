@@ -40,7 +40,8 @@ void Ui::render()
         ImGui::Begin("Demo!", &showDebug);
         ImGui::Checkbox("Demo Window", &showDemo);
 
-        ImGui::SliderFloat("Tree speed", &Settings::treeSpeed,0.,1000.);
+        ImGui::SliderFloat("Tree speed", &Settings::treeSpeed, 0., 1000.);
+        ImGui::SliderFloat("Cam speed", &Settings::camSpeed, 0., 1000.);
         if (ImGui::Checkbox("VSync", &Settings::isVSync))
             glfwSwapInterval(Settings::isVSync);
         ImGui::SameLine();

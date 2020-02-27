@@ -13,6 +13,7 @@
 #include <GLFW/glfw3.h>
 #include <array>
 #include "sprite_renderer.h"
+#include "camera.h"
 #include <random>
 #include <entt/entt.hpp>
 
@@ -42,11 +43,11 @@ public:
 
     static void init(int width, int height);
 
-    static void processInput(GLfloat dt);
+    static void processInput(GLfloat dt, Camera *camera);
 
     static void update(GLfloat dt);
 
-    static void render();
+    static void render(Camera *camera);
 
 private :
     static SpriteRenderer *renderer;
@@ -54,7 +55,9 @@ private :
     static entt::registry registry;
 
     static glm::vec2 getRandomPos();
+
     static glm::vec2 getRandomVel();
+
 
 };
 

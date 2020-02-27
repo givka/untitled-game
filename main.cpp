@@ -12,6 +12,7 @@
 #include "src/game.h"
 #include "src/resource_manager.h"
 #include "src/settings.h"
+#include "src/camera.h"
 
 constexpr int WIDTH = 800;
 constexpr int HEIGHT = 600;
@@ -65,7 +66,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 #elif _WIN32
-    const char*glsl_version = "#version 130";
+    const char *glsl_version = "#version 130";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 #endif
@@ -93,13 +94,14 @@ int main()
     }
 
     // OpenGL configuration
-    int width,height;
+    int width, height;
     glfwGetFramebufferSize(window, &width, &height);
     glViewport(0, 0, width, height);
     glEnable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    auto camera = new Camera();
     Game::init(width, height);
     Ui::init(window, glsl_version);
 
@@ -115,13 +117,13 @@ int main()
         lastFrame = currentFrame;
         glfwPollEvents();
 
-        Game::processInput(deltaTime);
+        Game::processInput(deltaTime, camera);
         Game::update(deltaTime);
 
         glClearColor(0.2, 0.2, 0.2, 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        Game::render();
+        Game::render(camera);
         Ui::render();
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -131,7 +133,6 @@ int main()
     Game::destroy();
     ResourceManager::Clear();
     Ui::destroy();
-
 
 
     glfwDestroyWindow(window);

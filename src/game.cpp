@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <random>
+#include <ctime>
 #include "game.h"
 #include "resource_manager.h"
 #include "sprite_renderer.h"
@@ -13,7 +14,7 @@ int Game::width{};
 int Game::height{};
 SpriteRenderer *Game::renderer{};
 std::mt19937 Game::mersenne{
-        static_cast<std::mt19937::result_type>(time(nullptr)) };
+        static_cast<std::mt19937::result_type>(std::time(nullptr)) };
 
 entt::registry Game::registry{};
 
@@ -37,7 +38,6 @@ struct size
 
 void Game::init(int width_, int height_)
 {
-
     width = width_;
     height = height_;
 
@@ -74,49 +74,66 @@ void Game::destroy()
 
 void Game::update(GLfloat dt)
 {
-    for (auto entity : registry.view<position, velocity, size>())
+    auto func = [dt](position &pos, velocity &vel, size &siz)
     {
-        auto &pos = registry.get<position>(entity);
-        auto &vel = registry.get<velocity>(entity);
-        auto &siz = registry.get<size>(entity);
-
-        if (pos.x > width - siz.x && vel.dx > 0)
+        if (pos.x > 200 - siz.x && vel.dx > 0)
             vel.dx = -vel.dx;
-        if (pos.x < 0 && vel.dx < 0)
+        if (pos.x < -200 + siz.x && vel.dx < 0)
             vel.dx = -vel.dx;
-        if (pos.y < 0 && vel.dy < 0)
+        if (pos.y < -200 + siz.y && vel.dy < 0)
             vel.dy = -vel.dy;
-        if (pos.y > height - siz.y && vel.dy > 0)
+        if (pos.y > 200 - siz.y && vel.dy > 0)
             vel.dy = -vel.dy;
 
         pos.x += Settings::treeSpeed * vel.dx * dt;
         pos.y += Settings::treeSpeed * vel.dy * dt;
-    }
+    };
+
+    registry.view<position, velocity, size>().each(func);
 }
 
-void Game::processInput(GLfloat dt)
+void Game::processInput(GLfloat dt, Camera *camera)
 {
+    // translation
+    if (keys[GLFW_KEY_W])
+        camera->pos.y -= Settings::camSpeed * dt;
+    if (keys[GLFW_KEY_S])
+        camera->pos.y += Settings::camSpeed * dt;
+    if (keys[GLFW_KEY_D])
+        camera->pos.x += Settings::camSpeed * dt;
+    if (keys[GLFW_KEY_A])
+        camera->pos.x -= Settings::camSpeed * dt;
+
+    /*
+    // rotation
+    if (keys[GLFW_KEY_Q])
+        camera->rot -= dt;
+    if (keys[GLFW_KEY_E])
+        camera->rot += dt;
+    */
 }
 
-void Game::render()
+void Game::render(Camera *camera)
 {
-    for (auto entity : registry.view<position, size>())
+    glm::mat4 view = camera->getView();
+    ResourceManager::GetShader("sprite").SetMatrix4("view", view);
+
+    auto func = [](position &pos, size &siz)
     {
-        const auto &pos = registry.get<position>(entity);
-        const auto &siz = registry.get<size>(entity);
         renderer->DrawSprite(ResourceManager::GetTexture("face"),
                              glm::vec2(pos.x, pos.y),
                              glm::vec2(siz.x, siz.y),
                              0.0f,
                              glm::vec3(1.0f, 1.0f, 1.0f));
-    }
+    };
+
+    registry.view<position, size>().each(func);
 }
 
 glm::vec2 Game::getRandomPos()
 {
-    std::uniform_int_distribution w{ 0, width };
-    std::uniform_int_distribution h{ 0, height };
-    return glm::vec2(w(mersenne), h(mersenne));
+    std::uniform_int_distribution bb{ -200, 200 };
+    return glm::vec2(bb(mersenne), bb(mersenne));
 }
 
 glm::vec2 Game::getRandomVel()
