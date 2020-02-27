@@ -67,5 +67,5 @@ private :
 
     glm::vec2 getRandomVel();
 
-    static bool frustrumCulled(const position &pos, const size &siz);
+    static bool frustumCulled(const position &pos, const size &siz);
 };

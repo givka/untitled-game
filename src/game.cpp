@@ -19,9 +19,13 @@ Game::Game()
 
     this->renderer = std::make_unique<SpriteRenderer>(ResourceManager::GetShader("sprite"));
 
-    for (int x = -static_cast<int>(global::camera->dim.x / 2); x < static_cast<int>(global::camera->dim.x / 2); x += 32)
+    for (int x = -static_cast<int>(global::camera->dim.x / 2 + 32);
+         x < static_cast<int>(global::camera->dim.x / 2 + 32);
+         x += 32)
     {
-        for (int y = -static_cast<int>(global::camera->dim.y / 2); y < static_cast<int>(global::camera->dim.y / 2); y += 32)
+        for (int y = -static_cast<int>(global::camera->dim.y / 2 + 32);
+             y < static_cast<int>(global::camera->dim.y / 2 + 32);
+             y += 32)
         {
             auto entity = this->registry.create();
             this->registry.assign<position>(entity, x, y);
@@ -76,6 +80,12 @@ void Game::processInput(GLfloat dt)
         global::camera->rot -= dt;
     if (keys[GLFW_KEY_E])
         global::camera->rot += dt;
+
+    if (keys[GLFW_KEY_R])
+    {
+        global::camera->rot = 0;
+        global::camera->pos = glm::vec3(0, 0, 1.0);
+    }
 }
 
 void Game::render()
@@ -87,12 +97,12 @@ void Game::render()
 
     auto func = [this](const position &pos, const size &siz)
     {
-        if (frustrumCulled(pos, siz))
+        if (frustumCulled(pos, siz))
             return;
 
         ++this->nbShowed;
         this->renderer->DrawSprite(ResourceManager::GetTexture("face"),
-                                   glm::vec2(pos.x, pos.y),
+                                   glm::vec2(pos.x, pos.y) - glm::vec2(siz.x / 2, siz.y / 2),
                                    glm::vec2(siz.x, siz.y),
                                    0.0f,
                                    glm::vec3(1.0f, 1.0f, 1.0f));
@@ -108,10 +118,10 @@ glm::vec2 Game::getRandomVel()
     return glm::vec2(glm::cos(val), glm::sin(val));
 }
 
-bool Game::frustrumCulled(const position &pos, const size &siz)
+bool Game::frustumCulled(const position &pos, const size &siz)
 {
-    return pos.x > global::camera->pos.x + global::camera->dim.x / 2 ||
-           pos.x < global::camera->pos.x - siz.x - global::camera->dim.x / 2 ||
-           pos.y > global::camera->pos.y + global::camera->dim.y / 2 ||
-           pos.y < global::camera->pos.y - siz.y - global::camera->dim.y / 2;
+    return pos.x > global::camera->pos.x + siz.x + global::camera->pos.z * global::camera->dim.x / 2 ||
+           pos.x < global::camera->pos.x - siz.x - global::camera->pos.z * global::camera->dim.x / 2 ||
+           pos.y > global::camera->pos.y + siz.y + global::camera->pos.z * global::camera->dim.y / 2 ||
+           pos.y < global::camera->pos.y - siz.y - global::camera->pos.z * global::camera->dim.y / 2;
 }

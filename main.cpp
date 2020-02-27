@@ -25,6 +25,11 @@ void framebufferSizeCallback(GLFWwindow *window, int width, int height)
     glfwSwapBuffers(window);
 }
 
+void scrollCallback(GLFWwindow *, double, double yOffset)
+{
+    global::camera->pos.z = glm::clamp(global::camera->pos.z + (yOffset > 0 ? 0.1f : -0.1f), 0.1f, 10.f);
+}
+
 void keyCallback(GLFWwindow *window, int key, int, int action, int)
 {
     // When a user presses the escape key, we set the WindowShouldClose property to true, closing the application
@@ -75,6 +80,7 @@ int main()
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
     glfwSetKeyCallback(window, keyCallback);
+    glfwSetScrollCallback(window, scrollCallback);
     glfwSwapInterval(Settings::isVSync);
 
     if (glewInit() != GLEW_OK)

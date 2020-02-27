@@ -33,7 +33,7 @@ void Ui::render()
 
         ImGui::SliderFloat("Tree speed", &Settings::treeSpeed, 0., 1000.);
         ImGui::SliderFloat("Cam speed", &Settings::camSpeed, 0., 1000.);
-        ImGui::InputFloat2("Camera position", (float *) &global::camera->pos);
+        ImGui::InputFloat3("Camera position", (float *) &global::camera->pos);
 
         ImGui::Text("showed: %d (%.1f )",
                     global::game->nbShowed,
