@@ -57,7 +57,7 @@ public:
     void render();
 
     int nbShowed{};
-    int nbEntities{ 100 };
+    int nbEntities{  };
 
 private :
     std::unique_ptr<SpriteRenderer> renderer;

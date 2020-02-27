@@ -19,13 +19,15 @@ Game::Game()
 
     this->renderer = std::make_unique<SpriteRenderer>(ResourceManager::GetShader("sprite"));
 
-    for (auto i = 0; i < this->nbEntities; ++i)
+    for (int x = -static_cast<int>(global::camera->dim.x / 2); x < static_cast<int>(global::camera->dim.x / 2); x += 32)
     {
-        auto entity = this->registry.create();
-        auto vel = getRandomVel();
-        this->registry.assign<position>(entity, 0, 0);
-        this->registry.assign<velocity>(entity, vel.x, vel.y);
-        this->registry.assign<size>(entity, 32, 32);
+        for (int y = -static_cast<int>(global::camera->dim.y / 2); y < static_cast<int>(global::camera->dim.y / 2); y += 32)
+        {
+            auto entity = this->registry.create();
+            this->registry.assign<position>(entity, x, y);
+            this->registry.assign<size>(entity, 32, 32);
+            ++this->nbEntities;
+        }
     }
 }
 
@@ -35,6 +37,8 @@ void Game::destroy()
 
 void Game::update(GLfloat dt)
 {
+
+    /*
     auto func = [dt](auto &pos, auto &vel, auto &siz)
     {
         if (pos.x > 200 - siz.x && vel.dx > 0)
@@ -51,6 +55,8 @@ void Game::update(GLfloat dt)
     };
 
     this->registry.view<position, velocity, size>().each(func);
+
+     */
 }
 
 void Game::processInput(GLfloat dt)
@@ -104,8 +110,8 @@ glm::vec2 Game::getRandomVel()
 
 bool Game::frustrumCulled(const position &pos, const size &siz)
 {
-    return pos.x > global::camera->pos.x - siz.x / 2 + global::camera->dim.x / 2 ||
-           pos.x < global::camera->pos.x - siz.x / 2 - global::camera->dim.x / 2 ||
-           pos.y > global::camera->pos.y - siz.y / 2 + global::camera->dim.y / 2 ||
-           pos.y < global::camera->pos.y - siz.y / 2 - global::camera->dim.y / 2;
+    return pos.x > global::camera->pos.x + global::camera->dim.x / 2 ||
+           pos.x < global::camera->pos.x - siz.x - global::camera->dim.x / 2 ||
+           pos.y > global::camera->pos.y + global::camera->dim.y / 2 ||
+           pos.y < global::camera->pos.y - siz.y - global::camera->dim.y / 2;
 }
