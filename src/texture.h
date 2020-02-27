@@ -1,13 +1,4 @@
-/*******************************************************************
-** This code is part of Breakout.
-**
-** Breakout is free software: you can redistribute it and/or modify
-** it under the terms of the CC BY 4.0 license as published by
-** Creative Commons, either version 4 of the License, or (at your
-** option) any later version.
-******************************************************************/
-#ifndef TEXTURE_H
-#define TEXTURE_H
+#pragma once
 
 #include <GL/glew.h>
 
@@ -35,5 +26,3 @@ public:
     // Binds the texture as the current active GL_TEXTURE_2D texture object
     void Bind() const;
 };
-
-#endif

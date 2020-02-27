@@ -1,13 +1,4 @@
-/*******************************************************************
-** This code is part of Breakout.
-**
-** Breakout is free software: you can redistribute it and/or modify
-** it under the terms of the CC BY 4.0 license as published by
-** Creative Commons, either version 4 of the License, or (at your
-** option) any later version.
-******************************************************************/
-#ifndef RESOURCE_MANAGER_H
-#define RESOURCE_MANAGER_H
+#pragma once
 
 #include <map>
 #include <string>
@@ -30,17 +21,17 @@ public:
     static std::map<std::string, Texture> Textures;
 
     // Loads (and generates) a shader program from file loading vertex, fragment (and geometry) shader's source code. If gShaderFile is not nullptr, it also loads a geometry shader
-    static Shader& LoadShader(const GLchar *vShaderFile, const GLchar *fShaderFile,
-               const GLchar *gShaderFile, std::string name);
+    static Shader &LoadShader(const GLchar *vShaderFile, const GLchar *fShaderFile,
+                              const GLchar *gShaderFile, std::string name);
 
     // Retrieves a stored sader
-    static Shader& GetShader(std::string name);
+    static Shader &GetShader(std::string name);
 
     // Loads (and generates) a texture from file
-    static Texture& LoadTexture(const GLchar *file, GLboolean alpha, std::string name);
+    static Texture &LoadTexture(const GLchar *file, GLboolean alpha, std::string name);
 
     // Retrieves a stored texture
-    static Texture& GetTexture(std::string name);
+    static Texture &GetTexture(std::string name);
 
     // Properly de-allocates all loaded resources
     static void Clear();
@@ -51,10 +42,8 @@ private:
 
     // Loads and generates a shader from file
     static Shader loadShaderFromFile(const GLchar *vShaderFile, const GLchar *fShaderFile,
-                       const GLchar *gShaderFile = nullptr);
+                                     const GLchar *gShaderFile = nullptr);
 
     // Loads a single texture from file
     static Texture loadTextureFromFile(const GLchar *file, GLboolean alpha);
 };
-
-#endif

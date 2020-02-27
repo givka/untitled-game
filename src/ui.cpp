@@ -1,16 +1,7 @@
-#include <imgui.h>
-#include <examples/imgui_impl_glfw.h>
-#include <examples/imgui_impl_opengl3.h>
-#include <string_view>
-#include <GLFW/glfw3.h>
 #include "ui.h"
-#include "settings.h"
+#include "global.h"
 
-bool Ui::showDebug = true;
-bool Ui::showDemo = false;
-ImGuiIO *Ui::io{ nullptr };
-
-void Ui::init(GLFWwindow *window, std::string_view glslVersion)
+Ui::Ui(GLFWwindow *window, std::string_view shaderVersion)
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -19,7 +10,7 @@ void Ui::init(GLFWwindow *window, std::string_view glslVersion)
     io = &ImGui::GetIO();
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init(glslVersion.data());
+    ImGui_ImplOpenGL3_Init(shaderVersion.data());
 
     float hidpiScaling = getHidpiScaling();
     float pixelRatio = getPixelRatio();
@@ -42,12 +33,17 @@ void Ui::render()
 
         ImGui::SliderFloat("Tree speed", &Settings::treeSpeed, 0., 1000.);
         ImGui::SliderFloat("Cam speed", &Settings::camSpeed, 0., 1000.);
+        ImGui::InputFloat2("Camera position", (float *) &global::camera->pos);
+
+        ImGui::Text("showed: %d (%.1f )",
+                    global::game->nbShowed,
+                    100.f *
+                    (static_cast<float>(global::game->nbShowed ) / static_cast<float>(global::game->nbEntities)));
+
         if (ImGui::Checkbox("VSync", &Settings::isVSync))
             glfwSwapInterval(Settings::isVSync);
         ImGui::SameLine();
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
-                    1000.0f / ImGui::GetIO().Framerate,
-                    ImGui::GetIO().Framerate);
+        ImGui::Text("%.3f ms (%.1f FPS)", 1000.0f / io->Framerate, io->Framerate);
 
         ImGui::End();
     }
@@ -83,3 +79,4 @@ float Ui::getHidpiScaling()
     glfwGetWindowContentScale(window, &xScale, &yScale);
     return 0.5f * (xScale + yScale);
 }
+

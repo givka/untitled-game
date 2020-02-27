@@ -1,36 +1,26 @@
-#define STB_IMAGE_IMPLEMENTATION
-
-#include <imgui.h>
-#include <examples/imgui_impl_glfw.h>
-#include <examples/imgui_impl_opengl3.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <fmt/core.h>
 #include <iostream>
 
 #include "src/ui.h"
-#include "src/game.h"
 #include "src/resource_manager.h"
 #include "src/settings.h"
 #include "src/camera.h"
+#include "src/global.h"
 
-constexpr int WIDTH = 800;
-constexpr int HEIGHT = 600;
+constexpr int WIDTH = 1280;
+constexpr int HEIGHT = 720;
 
 void errorCallback(int error, const char *description)
 {
     fprintf(stderr, "glfw Error %d: %s\n", error, description);
 }
 
-
 void framebufferSizeCallback(GLFWwindow *window, int width, int height)
 {
-    glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(width),
-                                      static_cast<GLfloat>(height), 0.0f, -1.0f,
-                                      1.0f);
-    ResourceManager::GetShader("sprite").SetMatrix4("projection", projection);
-    Game::width = width;
-    Game::height = height;
+    global::camera->dim = glm::vec2(width, height);
+    ResourceManager::GetShader("sprite").SetMatrix4("projection", global::camera->getProjection());
+
     glViewport(0, 0, width, height);
     glfwSwapBuffers(window);
 }
@@ -43,9 +33,9 @@ void keyCallback(GLFWwindow *window, int key, int, int action, int)
     if (key >= 0 && key < 1024)
     {
         if (action == GLFW_PRESS)
-            Game::keys[key] = GL_TRUE;
+            global::game->keys[key] = GL_TRUE;
         else if (action == GLFW_RELEASE)
-            Game::keys[key] = GL_FALSE;
+            global::game->keys[key] = GL_FALSE;
     }
 }
 
@@ -101,14 +91,13 @@ int main()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    auto camera = new Camera();
-    Game::init(width, height);
-    Ui::init(window, glsl_version);
+    // order is important here, game constructor will call camera first.
+    global::ui = std::make_unique<Ui>(window, glsl_version);
+    global::camera = std::make_unique<Camera>(width, height);
+    global::game = std::make_unique<Game>();
 
     float deltaTime{};
     float lastFrame{};
-
-    Game::state = Game::MENU;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -117,23 +106,22 @@ int main()
         lastFrame = currentFrame;
         glfwPollEvents();
 
-        Game::processInput(deltaTime, camera);
-        Game::update(deltaTime);
+        global::game->processInput(deltaTime);
+        global::game->update(deltaTime);
 
         glClearColor(0.2, 0.2, 0.2, 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        Game::render(camera);
-        Ui::render();
+        global::game->render();
+        global::ui->render();
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         glfwSwapBuffers(window);
     }
 
-    Game::destroy();
+    global::game->destroy();
     ResourceManager::Clear();
     Ui::destroy();
-
 
     glfwDestroyWindow(window);
     glfwTerminate();

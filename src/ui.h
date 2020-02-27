@@ -1,23 +1,28 @@
-#ifndef UNTILTED_GAME_UI_H
-#define UNTILTED_GAME_UI_H
+#pragma once
+
+#include <string_view>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <imgui.h>
+#include <examples/imgui_impl_glfw.h>
+#include <examples/imgui_impl_opengl3.h>
+#include "settings.h"
 
 class Ui
 {
 public:
-    static void init(GLFWwindow *window, std::string_view shaderVersion);
+    Ui(GLFWwindow *window, std::string_view shaderVersion);
 
-    static void render();
+    void render();
 
     static void destroy();
 
 private:
-    static bool showDebug;
-    static bool showDemo;
-    static ImGuiIO *io;
+    bool showDebug{ true };
+    bool showDemo{ false };
+    ImGuiIO *io{};
 
     static float getPixelRatio();
 
     static float getHidpiScaling();
 };
-
-#endif //UNTILTED_GAME_UI_H

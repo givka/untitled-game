@@ -1,31 +1,41 @@
-/*******************************************************************
-** This code is part of Breakout.
-**
-** Breakout is free software: you can redistribute it and/or modify
-** it under the terms of the CC BY 4.0 license as published by
-** Creative Commons, either version 4 of the License, or (at your
-** option) any later version.
-******************************************************************/
-#ifndef GAME_H
-#define GAME_H
+#pragma  once
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
 #include <array>
-#include "sprite_renderer.h"
-#include "camera.h"
+#include <ctime>
+#include <random>
+#include <iostream>
 #include <random>
 #include <entt/entt.hpp>
+#include "sprite_renderer.h"
+#include "resource_manager.h"
+#include "sprite_renderer.h"
+#include "settings.h"
+#include "camera.h"
 
-// Represents the current state of the game
-
-
-// Game holds all game-related state and functionality.
-// Combines all game-related data into a single class for
-// easy access to each of the components and manageability.
 class Game
 {
 public:
+    struct position
+    {
+        float x;
+        float y;
+    };
+
+    struct velocity
+    {
+        float dx;
+        float dy;
+    };
+
+    struct size
+    {
+        float x;
+        float y;
+    };
+
     enum State
     {
         ACTIVE,
@@ -33,32 +43,29 @@ public:
         WIN
     };
 
-    // Game state
-    static State state;
-    static std::array<bool, 1024> keys;
-    static int width;
-    static int height;
+    Game();
 
-    static void destroy();
+    State state = ACTIVE;
+    std::array<bool, 1024> keys{};
 
-    static void init(int width, int height);
+    void destroy();
 
-    static void processInput(GLfloat dt, Camera *camera);
+    void processInput(GLfloat dt);
 
-    static void update(GLfloat dt);
+    void update(GLfloat dt);
 
-    static void render(Camera *camera);
+    void render();
+
+    int nbShowed{};
+    int nbEntities{ 100 };
 
 private :
-    static SpriteRenderer *renderer;
-    static std::mt19937 mersenne;
-    static entt::registry registry;
+    std::unique_ptr<SpriteRenderer> renderer;
+    std::random_device randomDevice;
+    std::mt19937 randgen{ randomDevice() };
+    entt::registry registry{};
 
-    static glm::vec2 getRandomPos();
+    glm::vec2 getRandomVel();
 
-    static glm::vec2 getRandomVel();
-
-
+    static bool frustrumCulled(const position &pos, const size &siz);
 };
-
-#endif
