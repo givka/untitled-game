@@ -16,7 +16,7 @@ Compiler with C++17 support
 
 ## Installation
 ```bash
-git clone https://github.com/givka/untilted-game
+git clone https://github.com/givka/untitled-game
 git submodule init
 git submodule update
     
