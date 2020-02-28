@@ -14,15 +14,18 @@ Compiler with C++17 support
 * [entt](https://github.com/skypjack/entt.git)
 * [SimplexNoise](https://github.com/SRombauts/SimplexNoise.git)
 
-## Installation 
-    $ git clone https://github.com/givka/untilted-game
-    $ git submodule init
-    $ git submodule update
+## Installation
+```bash
+git clone https://github.com/givka/untilted-game
+git submodule init
+git submodule update
     
-    $ cd build
-    $ cmake ..
-    $ make
-
+cd build
+cmake ..
+make
+```
 ## Usage
-    $ cd build
-    $ ./main
+```bash
+cd build
+./main
+```
