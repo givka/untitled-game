@@ -28,7 +28,9 @@ void Ui::render()
 
     if (showDebug)
     {
-        ImGui::Begin("Demo!", &showDebug);
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
+
+        ImGui::Begin("Demo!", &showDebug, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
         ImGui::Checkbox("Demo Window", &showDemo);
 
         ImGui::SliderFloat("Tree speed", &Settings::treeSpeed, 0., 1000.);
