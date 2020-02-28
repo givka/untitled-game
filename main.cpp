@@ -25,6 +25,11 @@ void framebufferSizeCallback(GLFWwindow *window, int width, int height)
     glfwSwapBuffers(window);
 }
 
+static void cursorPosCallback(GLFWwindow *, double x, double y)
+{
+    global::game->mousePos = glm::vec2(x / global::camera->dim.x, y / global::camera->dim.y);
+}
+
 void scrollCallback(GLFWwindow *, double, double yOffset)
 {
     global::camera->pos.z = glm::clamp(global::camera->pos.z + (yOffset > 0 ? 0.1f : -0.1f), 0.1f, 10.f);
@@ -81,6 +86,8 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
     glfwSetKeyCallback(window, keyCallback);
     glfwSetScrollCallback(window, scrollCallback);
+    glfwSetCursorPosCallback(window, cursorPosCallback);
+
     glfwSwapInterval(Settings::isVSync);
 
     if (glewInit() != GLEW_OK)

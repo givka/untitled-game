@@ -57,6 +57,7 @@ public:
 
     State state = ACTIVE;
     std::array<bool, 1024> keys{};
+    glm::vec2 mousePos{};
 
     void destroy();
 

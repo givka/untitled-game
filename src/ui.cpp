@@ -36,10 +36,11 @@ void Ui::render()
         ImGui::SliderFloat("Tree speed", &Settings::treeSpeed, 0., 1000.);
         ImGui::SliderFloat("Cam speed", &Settings::camSpeed, 0., 1000.);
         ImGui::InputFloat3("Camera position", (float *) &global::camera->pos);
+        ImGui::InputFloat2("Mouse position", (float *) &global::game->mousePos);
 
         ImGui::Separator();
 
-        ImGui::SliderFloat("Frequency", &global::game->map->frequency, 0.001, 10.);
+        ImGui::SliderFloat("Frequency", &global::game->map->frequency, 0.001, 1.);
         ImGui::SliderFloat("Amplitude", &global::game->map->amplitude, 0.001, 10.);
         ImGui::SliderFloat("Lacunarity", &global::game->map->lacunarity, 0.001, 10.);
         ImGui::SliderFloat("Persistence", &global::game->map->persistence, 0.001, 10.);
