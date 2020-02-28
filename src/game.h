@@ -14,6 +14,9 @@
 #include "sprite_renderer.h"
 #include "settings.h"
 #include "camera.h"
+#include "map.h"
+
+class Map;
 
 class Game
 {
@@ -63,11 +66,9 @@ public:
 
     void render();
 
-    int nbShowed{};
-    int nbEntities{  };
+    std::unique_ptr<Map> map{ std::make_unique<Map>() };
 
 private :
-    std::unique_ptr<SpriteRenderer> renderer;
     std::random_device randomDevice;
     std::mt19937 randgen{ randomDevice() };
     entt::registry registry{};

@@ -37,10 +37,21 @@ void Ui::render()
         ImGui::SliderFloat("Cam speed", &Settings::camSpeed, 0., 1000.);
         ImGui::InputFloat3("Camera position", (float *) &global::camera->pos);
 
-        ImGui::Text("showed: %d (%.1f )",
-                    global::game->nbShowed,
+        ImGui::Separator();
+
+        ImGui::SliderFloat("Frequency", &global::game->map->frequency, 0.001, 10.);
+        ImGui::SliderFloat("Amplitude", &global::game->map->amplitude, 0.001, 10.);
+        ImGui::SliderFloat("Lacunarity", &global::game->map->lacunarity, 0.001, 10.);
+        ImGui::SliderFloat("Persistence", &global::game->map->persistence, 0.001, 10.);
+        ImGui::SliderInt("Octaves", &global::game->map->octaves, 1, 32);
+
+        ImGui::Separator();
+
+        ImGui::Text("showed: %d, count: %d, ratio: %.1f",
+                    global::game->map->showed,
+                    global::game->map->count(),
                     100.f *
-                    (static_cast<float>(global::game->nbShowed ) / static_cast<float>(global::game->nbEntities)));
+                    (static_cast<float>(global::game->map->showed ) / static_cast<float>(global::game->map->count())));
 
         if (ImGui::Checkbox("VSync", &Settings::isVSync))
             glfwSwapInterval(Settings::isVSync);

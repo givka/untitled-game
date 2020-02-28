@@ -2,39 +2,21 @@
 
 #include "global.h"
 #include <entt/entt.hpp>
+#include <SimplexNoise/src/SimplexNoise.h>
 
 Game::Game()
 {
-    ResourceManager::LoadShader("../data/shaders/sprite.vert",
-                                "../data/shaders/sprite.frag",
-                                nullptr, "sprite");
-    ResourceManager::GetShader("sprite")
-            .Use()
-            .SetInteger("image", 0);
-    ResourceManager::GetShader("sprite")
-            .SetMatrix4("projection", global::camera->getProjection());
 
-    ResourceManager::LoadTexture("../data/textures/square.png", GL_TRUE,
-                                 "face");
-
-    this->renderer = std::make_unique<SpriteRenderer>(ResourceManager::GetShader("sprite"));
-
-    for (int x = -static_cast<int>(global::camera->dim.x / 2 + 32);
-         x < static_cast<int>(global::camera->dim.x / 2 + 32);
-         x += 32)
+    auto midWidth = 10. * static_cast<int>(global::camera->dim.x / 2 + 32);
+    auto midHeight = 10. * static_cast<int>(global::camera->dim.y / 2 + 32);
+    for (int x = -midWidth; x < midWidth; x += 32)
     {
-        for (int y = -static_cast<int>(global::camera->dim.y / 2 + 32);
-             y < static_cast<int>(global::camera->dim.y / 2 + 32);
-             y += 32)
+        for (int y = -midHeight; y < midHeight; y += 32)
         {
             auto entity = this->registry.create();
             this->registry.assign<position>(entity, x, y);
             this->registry.assign<size>(entity, 32, 32);
-            this->registry.assign<color>(entity,
-                                         this->getRandomReal(0, 1),
-                                         this->getRandomReal(0, 1),
-                                         this->getRandomReal(0, 1));
-            ++this->nbEntities;
+            this->registry.assign<color>(entity, 0, 0, 0);
         }
     }
 }
@@ -43,10 +25,8 @@ void Game::destroy()
 {
 }
 
-
-void Game::update(GLfloat dt)
+void Game::update(GLfloat)
 {
-
     /*
     auto func = [dt](auto &pos, auto &vel, auto &siz)
     {
@@ -97,23 +77,7 @@ void Game::render()
 {
     glm::mat4 view = global::camera->getView();
     ResourceManager::GetShader("sprite").SetMatrix4("view", view);
-
-    this->nbShowed = 0;
-
-    auto func = [this](const position &pos, const size &siz, const color &col)
-    {
-        if (frustumCulled(pos, siz))
-            return;
-
-        ++this->nbShowed;
-        this->renderer->DrawSprite(ResourceManager::GetTexture("face"),
-                                   glm::vec2(pos.x, pos.y) - glm::vec2(siz.x / 2, siz.y / 2),
-                                   glm::vec2(siz.x, siz.y),
-                                   0.0f,
-                                   glm::vec3(col.r, col.g, col.b));
-    };
-
-    this->registry.view<position, size, color>().each(func);
+    this->map->render();
 }
 
 glm::vec2 Game::getRandomVel()

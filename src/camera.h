@@ -9,7 +9,6 @@ public:
 
     glm::vec3 pos{0,0,1.0};
     glm::vec2 dim{};
-    float zoom{ 1.0 };
     float rot{};
 
     glm::mat4 getView();
