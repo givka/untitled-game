@@ -2,7 +2,6 @@
 
 Map::Map()
 {
-
     ResourceManager::LoadShader("../data/shaders/sprite.vert",
                                 "../data/shaders/sprite.frag",
                                 nullptr, "sprite");
@@ -15,7 +14,8 @@ Map::Map()
     ResourceManager::LoadTexture("../data/textures/square.png", GL_TRUE,
                                  "face");
 
-    this->renderer = std::make_unique<SpriteRenderer>(ResourceManager::GetShader("sprite"));
+    this->renderer = std::make_unique<SpriteRenderer>(
+            ResourceManager::GetShader("sprite"));
 }
 
 glm::vec3 getColor(float noise)
@@ -36,20 +36,20 @@ glm::vec3 getColor(float noise)
 
 void Map::render()
 {
-    int midWidth = static_cast<int>(global::camera->pos.z * 10.);
-    int midHeight = midWidth;
-
     constexpr int SIZE{ 32 };
 
+    float zoom = global::camera->pos.z;
+    auto view = 1.f + zoom * global::camera->dim / (2.f * SIZE);
     this->showed = 0;
 
-    SimplexNoise simplexNoise{ this->frequency, this->amplitude, this->lacunarity, this->persistence };
+    SimplexNoise simplexNoise{ this->frequency, this->amplitude,
+                               this->lacunarity, this->persistence };
 
-    for (int x = -midWidth + (int) (global::camera->pos.x) / SIZE;
-         x <= midWidth + (int) (global::camera->pos.x) / SIZE; ++x)
+    for (int x = (int) (-view.x + global::camera->pos.x / SIZE);
+         x <= (int) (view.x + global::camera->pos.x / SIZE); ++x)
     {
-        for (int y = -midHeight + (int) (global::camera->pos.y) / SIZE;
-             y <= midHeight + (int) (global::camera->pos.y) / SIZE; ++y)
+        for (int y = (int) (-view.y + (global::camera->pos.y) / SIZE);
+             y <= (int) (view.y + (global::camera->pos.y) / SIZE); ++y)
         {
             float noise;
 
@@ -58,24 +58,28 @@ void Map::render()
             //   noise = it->second;
             //else
             {
-                noise = simplexNoise.fractal(this->octaves, (float) x, (float) y);
+                noise = simplexNoise.fractal(this->octaves, (float) x,
+                                             (float) y);
                 this->map.insert(std::make_pair(glm::vec2(x, y), noise));
             }
 
-            this->renderer->DrawSprite(ResourceManager::GetTexture("face"),
-                                       glm::vec2(x * SIZE, y * SIZE) - glm::vec2(SIZE / 2.),
-                                       glm::vec2(SIZE),
-                                       0.0f,
-                                       x == 0 && y == 0 ? glm::vec3(1, 0, 0) : getColor(noise));
+            auto position =
+                    (float) SIZE * glm::vec2(x, y) - glm::vec2(SIZE / 2.);
+
+            auto size = glm::vec2(SIZE);
+            auto angle = 0.0f;
+            auto color = x == 0 && y == 0 ? glm::vec3(1, 0, 0) : getColor(
+                    noise);
+            auto tile = Tile{ position, size, angle, glm::vec4(color, .5+.5*noise) };
+
+            this->renderer->addTile(tile);
 
             ++this->showed;
         }
     }
+
+    this->renderer->drawTiles(ResourceManager::GetTexture("face"));
     // for (auto const&[key, val] : this->map)
-
-
-
-
 }
 
 

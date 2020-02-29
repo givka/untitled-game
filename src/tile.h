@@ -1,12 +1,11 @@
-//
-// Created by Louis Barrière on 28/02/2020.
-//
+#pragma once
 
-#ifndef UNTILTED_GAME_TILE_H
-#define UNTILTED_GAME_TILE_H
+#include <glm/glm.hpp>
 
-class Tile
+struct Tile
 {
+    glm::vec2 position;
+    glm::vec2 size;
+    float angle;
+    glm::vec4 color;
 };
-
-#endif //UNTILTED_GAME_TILE_H

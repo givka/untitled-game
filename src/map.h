@@ -20,11 +20,11 @@ public:
 
     void render();
 
-    float frequency{ 1.0 };
+    float frequency{ 0.005 };
     float amplitude{ 1.0 };
     float lacunarity{ 2.0 };
     float persistence{ 0.5 };
-    int octaves{ 1 };
+    int octaves{ 8 };
     int showed{};
 
     int count() { return map.size(); }
