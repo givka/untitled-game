@@ -1,4 +1,18 @@
+#include <fmt/format.h>
 #include "map.h"
+#include "chunk.h"
+
+int Map::NBR_CHUNKS_X = 1;
+int Map::NBR_CHUNKS_Y = 1;
+
+std::unique_ptr<Chunk> Map::test(const glm::vec2 &pos,
+                                 const std::shared_ptr<Timer> &timer)
+{
+    timer->reset();
+    auto chunk = std::make_unique<Chunk>(pos);
+    timer->stop();
+    return chunk;
+}
 
 Map::Map()
 {
@@ -14,11 +28,19 @@ Map::Map()
     ResourceManager::LoadTexture("../data/textures/square.png", GL_TRUE,
                                  "face");
 
-    this->renderer = std::make_unique<SpriteRenderer>(
-            ResourceManager::GetShader("sprite"));
+    float zoom = global::camera->pos.z;
+    this->showed = 0;
+
+    static auto timer = global::ui->addTimer("Map::Map()");
+
+    timer->reset();
+
+    this->addNeighbourChunks();
+
+    timer->stop();
 }
 
-glm::vec3 getColor(float noise)
+glm::vec3 Map::getColor(float noise)
 {
     if (noise < 0.)
         return glm::vec3(0, 0, 1);
@@ -36,50 +58,74 @@ glm::vec3 getColor(float noise)
 
 void Map::render()
 {
-    constexpr int SIZE{ 32 };
+    this->updateFutures();
 
-    float zoom = global::camera->pos.z;
-    auto view = 1.f + zoom * global::camera->dim / (2.f * SIZE);
+    static auto timer = global::ui->addTimer("Map::render()");
+    timer->reset();
+
+    this->addNeighbourChunks();
+
+    timer->stop();
+}
+
+void Map::addNeighbourChunks()
+{
+
+    static auto camPos = global::ui->addVec2("Map::render() camPos");
+    camPos->x = (int) (global::camera->pos.x / Chunk::SIZE / Tile::SIZE);
+    camPos->y = (int) (global::camera->pos.y / Chunk::SIZE / Tile::SIZE);
+
     this->showed = 0;
 
-    SimplexNoise simplexNoise{ this->frequency, this->amplitude,
-                               this->lacunarity, this->persistence };
-
-    for (int x = (int) (-view.x + global::camera->pos.x / SIZE);
-         x <= (int) (view.x + global::camera->pos.x / SIZE); ++x)
+    for (int y = -Map::NBR_CHUNKS_Y + (int) camPos->y;
+         y <= Map::NBR_CHUNKS_Y + (int) camPos->y; ++y)
     {
-        for (int y = (int) (-view.y + (global::camera->pos.y) / SIZE);
-             y <= (int) (view.y + (global::camera->pos.y) / SIZE); ++y)
+        for (int x = -Map::NBR_CHUNKS_X + (int) camPos->x;
+             x <= Map::NBR_CHUNKS_X + (int) camPos->x; ++x)
         {
-            float noise;
+            auto itChunk = this->chunks.find(glm::vec2(x, y));
+            auto itFuture = this->futures.find(glm::vec2(x, y));
 
-            // auto it = this->map.find(glm::vec2{ x, y });
-            // if (it != this->map.end())
-            //   noise = it->second;
-            //else
+            if (itChunk != this->chunks.end())
             {
-                noise = simplexNoise.fractal(this->octaves, (float) x,
-                                             (float) y);
-                this->map.insert(std::make_pair(glm::vec2(x, y), noise));
+                itChunk->second->renderer->drawTiles(
+                        ResourceManager::GetTexture("face"));
+                this->showed += itChunk->second->models.size();
+                continue;
             }
 
-            auto position =
-                    (float) SIZE * glm::vec2(x, y) - glm::vec2(SIZE / 2.);
+            if (itFuture != this->futures.end())
+                continue;
 
-            auto size = glm::vec2(SIZE);
-            auto angle = 0.0f;
-            auto color = x == 0 && y == 0 ? glm::vec3(1, 0, 0) : getColor(
-                    noise);
-            auto tile = Tile{ position, size, angle, glm::vec4(color, .5+.5*noise) };
-
-            this->renderer->addTile(tile);
-
-            ++this->showed;
+            auto p = glm::vec2(x, y);
+            static auto t = global::ui->addTimer(
+                    fmt::format("Chunk: ({},{})", x, y));
+            this->futures.insert(
+                    std::make_pair(p, std::async(std::launch::async,
+                                                 &Map::test, this, p,
+                                                 t)));
         }
     }
+}
 
-    this->renderer->drawTiles(ResourceManager::GetTexture("face"));
-    // for (auto const&[key, val] : this->map)
+void Map::updateFutures()
+{
+    for (auto it = this->futures.begin(); it != this->futures.end();)
+    {
+        auto status = it->second.wait_for(std::chrono::nanoseconds(1));
+        if (status != std::future_status::ready)
+            ++it;
+        else
+        {
+            auto chunk = it->second.get();
+            chunk->renderer = std::make_unique<SpriteRenderer>(
+                    ResourceManager::GetShader("sprite"),
+                    chunk->models,
+                    chunk->colors);
+            this->chunks.insert(std::make_pair(chunk->pos, std::move(chunk)));
+            it = this->futures.erase(it);
+        }
+    }
 }
 
 

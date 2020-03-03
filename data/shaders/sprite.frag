@@ -7,16 +7,9 @@ out vec4 color;
 uniform sampler2D image;
 uniform vec3 spriteColor;
 
-
-
-
-
-
-
 void main()
 {
     color = Color * texture(image, TexCoords);
-
 }
 
 

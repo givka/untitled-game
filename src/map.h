@@ -12,6 +12,9 @@
 #include "sprite_renderer.h"
 #include "resource_manager.h"
 #include "global.h"
+#include "chunk.h"
+#include "timer.h"
+#include <future>
 
 class Map
 {
@@ -20,17 +23,28 @@ public:
 
     void render();
 
-    float frequency{ 0.005 };
-    float amplitude{ 1.0 };
-    float lacunarity{ 2.0 };
-    float persistence{ 0.5 };
-    int octaves{ 8 };
+    int count() { return this->chunks.size(); }
+
+    static  int NBR_CHUNKS_X;
+    static  int NBR_CHUNKS_Y;
+
     int showed{};
 
-    int count() { return map.size(); }
-
 private:
-    std::unordered_map<glm::vec2, float> map;
-    std::unique_ptr<SpriteRenderer> renderer;
+
+    std::unordered_map<glm::vec2, std::unique_ptr<Chunk>> chunks;
+
+    glm::vec3 getColor(float noise);
+
+    std::unique_ptr<Chunk> test(const glm::vec2 &pos,
+                                const std::shared_ptr<Timer> &timer);
+
+    std::unordered_map<glm::vec2, std::future<std::unique_ptr<Chunk>>> futures{};
+
+    void addNeighbourChunks();
+
+    bool lol = false;
+
+    void updateFutures();
 };
 

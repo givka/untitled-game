@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <future>
 
 #include "src/ui.h"
 #include "src/resource_manager.h"
@@ -19,7 +20,8 @@ void errorCallback(int error, const char *description)
 void framebufferSizeCallback(GLFWwindow *window, int width, int height)
 {
     global::camera->dim = glm::vec2(width, height);
-    ResourceManager::GetShader("sprite").SetMatrix4("projection", global::camera->getProjection());
+    ResourceManager::GetShader("sprite").SetMatrix4("projection",
+                                                    global::camera->getProjection());
 
     glViewport(0, 0, width, height);
     glfwSwapBuffers(window);
@@ -27,12 +29,14 @@ void framebufferSizeCallback(GLFWwindow *window, int width, int height)
 
 static void cursorPosCallback(GLFWwindow *, double x, double y)
 {
-    global::game->mousePos = glm::vec2(x / global::camera->dim.x, y / global::camera->dim.y);
+    global::game->mousePos = glm::vec2(2 * x / global::camera->dim.x,
+                                       2 * y / global::camera->dim.y);
 }
 
 void scrollCallback(GLFWwindow *, double, double yOffset)
 {
-    global::camera->pos.z = glm::clamp(global::camera->pos.z + (yOffset > 0 ? 0.1f : -0.1f), 0.1f, 10.f);
+    global::camera->pos.z = glm::clamp(
+            global::camera->pos.z + (yOffset > 0 ? 0.1f : -0.1f), 0.1f, 10.f);
 }
 
 void keyCallback(GLFWwindow *window, int key, int, int action, int)
@@ -112,9 +116,19 @@ int main()
     float deltaTime{};
     float lastFrame{};
 
+    //std::vector<std::future<std::vector<unsigned char>>> futures;
+
+    /* for (int i = 0; i < 100; ++i)
+     {
+         futures.push_back(
+                 std::async(std::launch::async, testFunction, 2000, 2000, i));
+     }
+ */
     while (!glfwWindowShouldClose(window))
     {
-        float currentFrame{ static_cast<float>(glfwGetTime()) };
+        // auto status = futures[0].wait_for(std::chrono::nanoseconds(1));
+
+        auto currentFrame = (float) glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         glfwPollEvents();

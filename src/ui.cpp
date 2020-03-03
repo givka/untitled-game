@@ -30,7 +30,8 @@ void Ui::render()
     {
         ImGui::SetNextWindowPos(ImVec2(0, 0));
 
-        ImGui::Begin("Demo!", &showDebug, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
+        ImGui::Begin("Demo!", &showDebug, ImGuiWindowFlags_AlwaysAutoResize |
+                                          ImGuiWindowFlags_NoTitleBar);
         ImGui::Checkbox("Demo Window", &showDemo);
 
         ImGui::SliderFloat("Tree speed", &Settings::treeSpeed, 0., 1000.);
@@ -38,13 +39,16 @@ void Ui::render()
         ImGui::InputFloat3("Camera position", (float *) &global::camera->pos);
         ImGui::InputFloat2("Mouse position", (float *) &global::game->mousePos);
 
+        ImGui::SliderInt("NBR_CHUNKS_X", &Map::NBR_CHUNKS_X, 1, 10);
+        ImGui::SliderInt("NBR_CHUNKS_Y", &Map::NBR_CHUNKS_Y, 1, 10);
+
         ImGui::Separator();
 
-        ImGui::SliderFloat("Frequency", &global::game->map->frequency, 0.001, 1.);
-        ImGui::SliderFloat("Amplitude", &global::game->map->amplitude, 0.001, 10.);
-        ImGui::SliderFloat("Lacunarity", &global::game->map->lacunarity, 0.001, 10.);
-        ImGui::SliderFloat("Persistence", &global::game->map->persistence, 0.001, 10.);
-        ImGui::SliderInt("Octaves", &global::game->map->octaves, 1, 32);
+        ImGui::SliderFloat("Frequency", &Chunk::frequency, 0.0001, 0.1);
+        ImGui::SliderFloat("Amplitude", &Chunk::amplitude, 0.001, 10.);
+        ImGui::SliderFloat("Lacunarity", &Chunk::lacunarity, 0.001, 10.);
+        ImGui::SliderFloat("Persistence", &Chunk::persistence, 0.001, 10.);
+        ImGui::SliderInt("Octaves", &Chunk::octaves, 1, 32);
 
         ImGui::Separator();
 
@@ -52,12 +56,31 @@ void Ui::render()
                     global::game->map->showed,
                     global::game->map->count(),
                     100.f *
-                    (static_cast<float>(global::game->map->showed ) / static_cast<float>(global::game->map->count())));
+                    (static_cast<float>(global::game->map->showed ) /
+                     static_cast<float>(global::game->map->count())));
+
+        ImGui::Separator();
+
+        for (const auto &[timer, name]: this->timers)
+        {
+            ImGui::Text("timer %s: %.3f ms", name.data(), timer->elapsed());
+        }
+
+        ImGui::Separator();
+
+        for (const auto &[vec2, name]: this->vec2s)
+        {
+            ImGui::Text("vec2 %s: x: %.3f, y:%.3f", name.data(), vec2->x,
+                        vec2->y);
+        }
+
+        ImGui::Separator();
 
         if (ImGui::Checkbox("VSync", &Settings::isVSync))
             glfwSwapInterval(Settings::isVSync);
         ImGui::SameLine();
-        ImGui::Text("%.3f ms (%.1f FPS)", 1000.0f / io->Framerate, io->Framerate);
+        ImGui::Text("%.3f ms (%.1f FPS)", 1000.0f / io->Framerate,
+                    io->Framerate);
 
         ImGui::End();
     }
@@ -94,3 +117,14 @@ float Ui::getHidpiScaling()
     return 0.5f * (xScale + yScale);
 }
 
+std::shared_ptr<Timer> &Ui::addTimer(const std::string &name)
+{
+    return timers.emplace_back(
+            std::make_pair(std::make_shared<Timer>(), name)).first;;
+}
+
+std::shared_ptr<glm::vec2> &Ui::addVec2(const std::string &name)
+{
+    return vec2s.emplace_back(
+            std::make_pair(std::make_shared<glm::vec2>(), name)).first;
+}

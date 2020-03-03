@@ -1,8 +1,10 @@
 #pragma once
 
 #include <vector>
+#include <array>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <memory>
 
 #include "texture.h"
 #include "shader.h"
@@ -14,25 +16,18 @@ public:
     // Constructor (inits shaders/shapes)
     SpriteRenderer() = default;
 
-    SpriteRenderer(Shader &shader);
+    SpriteRenderer(Shader &shader, std::vector<glm::mat4> &models,
+                   std::vector<glm::vec4> &colors);
 
-    // Destructor
     ~SpriteRenderer();
 
     void drawTiles(Texture &texture);
-
-    void addTile(const Tile& tile);
-
 private:
+    std::vector<glm::mat4> models{};
+    std::vector<glm::vec4> colors{};
 
-    std::vector<glm::mat4> models;
-    std::vector<glm::vec4> colors;
+    Shader shader{};
+    GLuint quadVAO{};
 
-    // Render state
-    Shader shader;
-    GLuint quadVAO;
-
-    // Initializes and configures the quad's buffer and vertex attributes
     void initRenderData();
-
 };

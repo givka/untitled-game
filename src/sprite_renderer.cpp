@@ -6,11 +6,14 @@
 ** Creative Commons, either version 4 of the License, or (at your
 ** option) any later version.
 ******************************************************************/
+#include <iostream>
 #include "sprite_renderer.h"
+#include "map.h"
 
-SpriteRenderer::SpriteRenderer(Shader &shader)
+SpriteRenderer::SpriteRenderer(Shader &shader, std::vector<glm::mat4> &models,
+                               std::vector<glm::vec4> &colors)
+        : models(models), colors(colors), shader(shader)
 {
-    this->shader = shader;
     this->initRenderData();
 }
 
@@ -46,19 +49,15 @@ void SpriteRenderer::initRenderData()
                           nullptr);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-}
 
-void SpriteRenderer::drawTiles(Texture &texture)
-{
-    this->shader.Use();
 
-     int MAX_SIZE = this->models.size();
+    // INSTANCED
 
     unsigned int buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, MAX_SIZE * sizeof(glm::mat4),
-                 &this->models[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, models.size() * sizeof(glm::mat4),
+                 &models[0], GL_STATIC_DRAW);
 
     glBindVertexArray(this->quadVAO);
 
@@ -82,14 +81,11 @@ void SpriteRenderer::drawTiles(Texture &texture)
                           (void *) (3 * sizeof(glm::vec4)));
     glVertexAttribDivisor(4, 1);
 
-
-
-
     unsigned int bufferColor;
     glGenBuffers(1, &bufferColor);
     glBindBuffer(GL_ARRAY_BUFFER, bufferColor);
-    glBufferData(GL_ARRAY_BUFFER, MAX_SIZE * sizeof(glm::vec4),
-                 &this->colors[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(glm::vec4),
+                 &colors[0], GL_STATIC_DRAW);
 
     glBindVertexArray(this->quadVAO);
 
@@ -99,8 +95,12 @@ void SpriteRenderer::drawTiles(Texture &texture)
 
     glVertexAttribDivisor(5, 1);
 
-
     glBindVertexArray(0);
+}
+
+void SpriteRenderer::drawTiles(Texture &texture)
+{
+    this->shader.Use();
 
     glActiveTexture(GL_TEXTURE0);
     texture.Bind();
@@ -108,26 +108,5 @@ void SpriteRenderer::drawTiles(Texture &texture)
     glBindVertexArray(this->quadVAO);
     glDrawArraysInstanced(GL_TRIANGLES, 0, 6, this->models.size());
     glBindVertexArray(0);
-
-    this->models.clear();
-    this->colors.clear();
 }
 
-void SpriteRenderer::addTile(const Tile &tile)
-{
-    // Prepare transformations
-    glm::mat4 model = glm::mat4(1.0f);
-    // First translate (transformations are: scale happens first, then rotation and then final translation happens; reversed order)
-    model = glm::translate(model, glm::vec3(tile.position, 0.0f));
-    // Move origin of rotation to center of quad
-    model = glm::translate(model, glm::vec3(0.5f * tile.size, 0.0f));
-    // Then rotate
-    model = glm::rotate(model, tile.angle, glm::vec3(0.0f, 0.0f, 1.0f));
-    // Move origin back
-    model = glm::translate(model, glm::vec3(-0.5f * tile.size, 0.0f));
-    // Last scale
-    model = glm::scale(model, glm::vec3(tile.size, 1.0f));
-
-    this->models.push_back(model);
-    this->colors.push_back(tile.color);
-}

@@ -5,23 +5,33 @@
 class Timer
 {
 private:
-    using clock_t = std::chrono::high_resolution_clock;
-    using second_t = std::chrono::duration<double, std::ratio<1> >;
+    using milliseconds_t = std::chrono::duration<float, std::ratio<1, 1000>>;
 
-    std::chrono::time_point <clock_t> beg;
-
+    std::chrono::time_point<std::chrono::high_resolution_clock> beg;
+    std::chrono::time_point<std::chrono::high_resolution_clock> sto;
+    bool stopped{};
 public:
-    Timer() : beg(clock_t::now())
+    Timer() : beg(std::chrono::high_resolution_clock::now())
     {
     }
 
     void reset()
     {
-        beg = clock_t::now();
+        stopped = false;
+        beg = std::chrono::high_resolution_clock::now();
     }
 
-    double elapsed() const
+    void stop()
     {
-        return std::chrono::duration_cast<second_t>(clock_t::now() - beg).count();
+        stopped = true;
+        sto = std::chrono::high_resolution_clock::now();
+    }
+
+    float elapsed() const
+    {
+        auto duration = stopped ?
+                        sto - beg :
+                        std::chrono::high_resolution_clock::now() - beg;
+        return std::chrono::duration_cast<milliseconds_t>(duration).count();
     }
 };
