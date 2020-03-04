@@ -33,10 +33,11 @@ void Ui::render()
                                           ImGuiWindowFlags_NoTitleBar);
         ImGui::Checkbox("Demo Window", &showDemo);
 
-        ImGui::SliderFloat("Tree speed", &Settings::treeSpeed, 0., 1000.);
-        ImGui::SliderFloat("Cam speed", &Settings::camSpeed, 0., 1000.);
+        ImGui::SliderFloat("Cam speed", &settings::camSpeed, 0., 10000.);
         ImGui::InputFloat3("Camera position", (float *) &globals::camera->pos);
         ImGui::InputFloat2("Mouse position", (float *) &globals::game->mousePos);
+
+        ImGui::InputFloat3("Sun position", (float *) &settings::sunPos);
 
         ImGui::SliderInt("NBR_CHUNKS_X", &Map::NBR_CHUNKS_X, 1, 10);
         ImGui::SliderInt("NBR_CHUNKS_Y", &Map::NBR_CHUNKS_Y, 1, 10);
@@ -72,8 +73,8 @@ void Ui::render()
 
         ImGui::Separator();
 
-        if (ImGui::Checkbox("VSync", &Settings::isVSync))
-            glfwSwapInterval(Settings::isVSync);
+        if (ImGui::Checkbox("VSync", &settings::isVSync))
+            glfwSwapInterval(settings::isVSync);
         ImGui::SameLine();
         ImGui::Text("%.3f ms (%.1f FPS)", 1000.0f / io->Framerate,
                     io->Framerate);

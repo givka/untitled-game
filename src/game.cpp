@@ -52,13 +52,13 @@ void Game::processInput(GLfloat dt)
 {
     // translation
     if (keys[GLFW_KEY_W])
-        globals::camera->pos.y -= Settings::camSpeed * dt;
+        globals::camera->pos.y -= settings::camSpeed * dt;
     if (keys[GLFW_KEY_S])
-        globals::camera->pos.y += Settings::camSpeed * dt;
+        globals::camera->pos.y += settings::camSpeed * dt;
     if (keys[GLFW_KEY_D])
-        globals::camera->pos.x += Settings::camSpeed * dt;
+        globals::camera->pos.x += settings::camSpeed * dt;
     if (keys[GLFW_KEY_A])
-        globals::camera->pos.x -= Settings::camSpeed * dt;
+        globals::camera->pos.x -= settings::camSpeed * dt;
 
     // rotation
     if (keys[GLFW_KEY_Q])
@@ -69,7 +69,30 @@ void Game::processInput(GLfloat dt)
     if (keys[GLFW_KEY_R])
     {
         globals::camera->rot = 0;
-        globals::camera->pos = glm::vec3(0, 0, 1.0);
+        globals::camera->pos = glm::vec3(0, 0, 10.0);
+    }
+
+    if (keys[GLFW_KEY_N])
+    {
+        ResourceManager::LoadShader("../data/shaders/sprite.vert",
+                                    "../data/shaders/sprite.frag",
+                                    nullptr, "sprite");
+        ResourceManager::GetShader("sprite").Use()
+                .SetInteger("image", 0);
+
+        ResourceManager::GetShader("sprite")
+                .SetMatrix4("projection", globals::camera->getProjection());
+
+        for (auto&[pos, chunk] :this->map->chunks)
+        {
+            chunk->renderer->shader = ResourceManager::GetShader("sprite");
+        }
+    }
+
+    if (this->keys[GLFW_KEY_P])
+    {
+        settings::sunPos.x = -1 + 2 * this->mousePos.x;
+        settings::sunPos.y = -1 + 2 * this->mousePos.y;
     }
 }
 

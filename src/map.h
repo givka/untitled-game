@@ -30,9 +30,8 @@ public:
 
     int showed{};
 
-private:
-
     std::unordered_map<glm::vec2, std::unique_ptr<Chunk>> chunks;
+private:
 
     glm::vec3 getColor(float noise);
 

@@ -2,6 +2,7 @@
 
 #include <glm/vec2.hpp>
 #include <glm/gtx/hash.hpp>
+#include <SimplexNoise/src/SimplexNoise.h>
 
 #include <memory>
 #include <unordered_map>
@@ -27,7 +28,12 @@ public:
 
     std::vector<glm::mat4> models;
     std::vector<glm::vec4> colors;
+    std::vector<glm::vec3> normals;
 
     std::unique_ptr<SpriteRenderer> renderer{};
+
+    static glm::vec3 getNoise(const glm::vec2 &pos);
+
+    static glm::vec3 calculateNormal(const glm::vec2 &position);
 };
 

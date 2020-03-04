@@ -1,16 +1,11 @@
-//
-// Created by Arthur Barriere on 2020-02-26.
-//
+#pragma once
 
-#ifndef UNTILTED_GAME_SETTINGS_H
-#define UNTILTED_GAME_SETTINGS_H
+#include <glm/vec3.hpp>
 
-class Settings
+namespace settings
 {
-public:
-    static bool isVSync;
-    static float treeSpeed;
-    static float camSpeed;
+    inline glm::vec3 sunPos;
+    inline bool isVSync;
+    inline float camSpeed;
 };
 
-#endif //UNTILTED_GAME_SETTINGS_H

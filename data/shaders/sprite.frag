@@ -1,16 +1,45 @@
 #version 330 core
 in vec2 TexCoords;
 in vec4 Color;
+in vec3 Normal;
+in vec2 Position;
 
 out vec4 color;
 
 uniform sampler2D image;
 uniform vec3 spriteColor;
+uniform vec3 sun;
+uniform float time;
+
+vec3 getColor(float noise)
+{
+    if (noise < 0.)
+    return vec3(0, 0, 1);
+    if (noise < 0.1)
+    return vec3(1, 1, 0);
+    if (noise < 0.6)
+    return vec3(0.5, 1, 0.5);
+    if (noise < 0.6)
+    return vec3(0.6, 0.1, 0.1);
+    if (noise < 0.8)
+    return vec3(1, 1, 1);
+
+    return vec3(1, 1, 1);
+}
+
+
+vec3 calcNormal() {
+    return normalize((Color.w+0.5)*Normal+sun);
+}
 
 void main()
 {
-    color = Color * texture(image, TexCoords);
-}
+    vec3 normal = Normal;
+    if (Color.w < 0.0){
+        normal = calcNormal();
+    }
 
+    color = vec4(dot(normalize(sun), normal)*getColor(Color.w), 1.0) * texture(image, TexCoords);
+}
 
 //color = vec4(gl_FragCoord.xy/vec2(1280, 720), 1, 1);

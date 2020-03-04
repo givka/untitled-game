@@ -11,8 +11,8 @@
 #include "map.h"
 
 SpriteRenderer::SpriteRenderer(Shader &shader, std::vector<glm::mat4> &models,
-                               std::vector<glm::vec4> &colors)
-        : models(models), colors(colors), shader(shader)
+                               std::vector<glm::vec4> &colors, std::vector<glm::vec3> &normals)
+        : models(models), colors(colors),normals(normals), shader(shader)
 {
     this->initRenderData();
 }
@@ -94,6 +94,24 @@ void SpriteRenderer::initRenderData()
                           (void *) nullptr);
 
     glVertexAttribDivisor(5, 1);
+
+
+
+    unsigned int normalBuffer;
+    glGenBuffers(1, &normalBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+    glBufferData(GL_ARRAY_BUFFER, this->normals.size() * sizeof(glm::vec3),
+                 &this->normals[0], GL_STATIC_DRAW);
+
+    glBindVertexArray(this->quadVAO);
+
+    glEnableVertexAttribArray(6);
+    glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
+                          (void *) nullptr);
+
+    glVertexAttribDivisor(6, 1);
+
+
 
     glBindVertexArray(0);
 }

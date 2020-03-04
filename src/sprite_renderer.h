@@ -17,16 +17,18 @@ public:
     SpriteRenderer() = default;
 
     SpriteRenderer(Shader &shader, std::vector<glm::mat4> &models,
-                   std::vector<glm::vec4> &colors);
+                   std::vector<glm::vec4> &colors, std::vector<glm::vec3> &normals);
 
     ~SpriteRenderer();
 
     void drawTiles(Texture &texture);
+
+    Shader shader{};
 private:
     std::vector<glm::mat4> models{};
     std::vector<glm::vec4> colors{};
+    std::vector<glm::vec3> normals{};
 
-    Shader shader{};
     GLuint quadVAO{};
 
     void initRenderData();

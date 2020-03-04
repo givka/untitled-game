@@ -60,6 +60,12 @@ void Map::render()
 {
     this->updateFutures();
 
+    ResourceManager::GetShader("sprite")
+            .SetVector3f("sun", settings::sunPos);
+
+    ResourceManager::GetShader("sprite")
+            .SetFloat("time",glfwGetTime());
+
     static auto timer = globals::ui->addTimer("Map::render()");
     timer->reset();
 
@@ -121,7 +127,8 @@ void Map::updateFutures()
             chunk->renderer = std::make_unique<SpriteRenderer>(
                     ResourceManager::GetShader("sprite"),
                     chunk->models,
-                    chunk->colors);
+                    chunk->colors,
+                    chunk->normals);
             this->chunks.insert(std::make_pair(chunk->pos, std::move(chunk)));
             it = this->futures.erase(it);
         }

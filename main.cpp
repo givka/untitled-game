@@ -29,14 +29,13 @@ void framebufferSizeCallback(GLFWwindow *window, int width, int height)
 
 static void cursorPosCallback(GLFWwindow *, double x, double y)
 {
-    globals::game->mousePos = glm::vec2(2 * x / globals::camera->dim.x,
-                                       2 * y / globals::camera->dim.y);
+    //FIXME: hidpi is divided by 2
+    globals::game->mousePos = glm::vec2(x / globals::camera->dim.x, y / globals::camera->dim.y);
 }
 
 void scrollCallback(GLFWwindow *, double, double yOffset)
 {
-    globals::camera->pos.z = glm::clamp(
-            globals::camera->pos.z + (yOffset > 0 ? 0.1f : -0.1f), 0.1f, 10.f);
+    globals::camera->pos.z += (yOffset > 0 ? 0.1f : -0.1f);
 }
 
 void keyCallback(GLFWwindow *window, int key, int, int action, int)
@@ -80,10 +79,15 @@ int main()
 #endif
 
 
+
+
+
+
     // Create window with graphics context
     GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT,
                                           "Untitled Game",
                                           nullptr, nullptr);
+
     if (window == nullptr)
         return 1;
     glfwMakeContextCurrent(window);
@@ -92,13 +96,12 @@ int main()
     glfwSetScrollCallback(window, scrollCallback);
     glfwSetCursorPosCallback(window, cursorPosCallback);
 
-    glfwSwapInterval(Settings::isVSync);
-
     if (glewInit() != GLEW_OK)
     {
         fprintf(stderr, "Failed to initialize OpenGL loader!\n");
         return 1;
     }
+
 
     // OpenGL configuration
     int width, height;
@@ -108,26 +111,19 @@ int main()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // order is important here, game constructor will call camera first.
+    settings::sunPos = glm::vec3(0, 0, 1);
+    settings::camSpeed = 500;
     globals::ui = std::make_unique<Ui>(window, glsl_version);
     globals::camera = std::make_unique<Camera>(width, height);
     globals::game = std::make_unique<Game>();
 
+    glfwSwapInterval(settings::isVSync);
+
     float deltaTime{};
     float lastFrame{};
 
-    //std::vector<std::future<std::vector<unsigned char>>> futures;
-
-    /* for (int i = 0; i < 100; ++i)
-     {
-         futures.push_back(
-                 std::async(std::launch::async, testFunction, 2000, 2000, i));
-     }
- */
     while (!glfwWindowShouldClose(window))
     {
-        // auto status = futures[0].wait_for(std::chrono::nanoseconds(1));
-
         auto currentFrame = (float) glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
@@ -155,3 +151,4 @@ int main()
 
     return 0;
 }
+

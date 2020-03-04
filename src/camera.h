@@ -7,7 +7,7 @@ class Camera
 public:
     Camera(int width, int height);
 
-    glm::vec3 pos{0,0,1.0};
+    glm::vec3 pos{0,0,10.0};
     glm::vec2 dim{};
     float rot{};
 
