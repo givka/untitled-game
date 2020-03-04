@@ -11,7 +11,7 @@
 
 #include "sprite_renderer.h"
 #include "resource_manager.h"
-#include "global.h"
+#include "globals.h"
 #include "chunk.h"
 #include "timer.h"
 #include <future>

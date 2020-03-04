@@ -1,5 +1,4 @@
 #include "ui.h"
-#include "global.h"
 
 Ui::Ui(GLFWwindow *window, std::string_view shaderVersion)
 {
@@ -36,8 +35,8 @@ void Ui::render()
 
         ImGui::SliderFloat("Tree speed", &Settings::treeSpeed, 0., 1000.);
         ImGui::SliderFloat("Cam speed", &Settings::camSpeed, 0., 1000.);
-        ImGui::InputFloat3("Camera position", (float *) &global::camera->pos);
-        ImGui::InputFloat2("Mouse position", (float *) &global::game->mousePos);
+        ImGui::InputFloat3("Camera position", (float *) &globals::camera->pos);
+        ImGui::InputFloat2("Mouse position", (float *) &globals::game->mousePos);
 
         ImGui::SliderInt("NBR_CHUNKS_X", &Map::NBR_CHUNKS_X, 1, 10);
         ImGui::SliderInt("NBR_CHUNKS_Y", &Map::NBR_CHUNKS_Y, 1, 10);
@@ -53,26 +52,23 @@ void Ui::render()
         ImGui::Separator();
 
         ImGui::Text("showed: %d, count: %d, ratio: %.1f",
-                    global::game->map->showed,
-                    global::game->map->count(),
+                    globals::game->map->showed,
+                    globals::game->map->count(),
                     100.f *
-                    (static_cast<float>(global::game->map->showed ) /
-                     static_cast<float>(global::game->map->count())));
+                    (static_cast<float>(globals::game->map->showed ) /
+                     static_cast<float>(globals::game->map->count())));
 
+        ImGui::Separator();
+        ImGui::Text("TIMERS");
         ImGui::Separator();
 
         for (const auto &[timer, name]: this->timers)
-        {
             ImGui::Text("timer %s: %.3f ms", name.data(), timer->elapsed());
-        }
 
         ImGui::Separator();
 
         for (const auto &[vec2, name]: this->vec2s)
-        {
-            ImGui::Text("vec2 %s: x: %.3f, y:%.3f", name.data(), vec2->x,
-                        vec2->y);
-        }
+            ImGui::Text("vec2 %s: (x:%.3f, y:%.3f)", name.data(), vec2->x, vec2->y);
 
         ImGui::Separator();
 
@@ -117,14 +113,12 @@ float Ui::getHidpiScaling()
     return 0.5f * (xScale + yScale);
 }
 
-std::shared_ptr<Timer> &Ui::addTimer(const std::string &name)
+std::shared_ptr<Timer> Ui::addTimer(const std::string &name)
 {
-    return timers.emplace_back(
-            std::make_pair(std::make_shared<Timer>(), name)).first;;
+    return timers.emplace_back(std::make_pair(std::make_shared<Timer>(), name)).first;
 }
 
-std::shared_ptr<glm::vec2> &Ui::addVec2(const std::string &name)
+std::shared_ptr<glm::vec2> Ui::addVec2(const std::string &name)
 {
-    return vec2s.emplace_back(
-            std::make_pair(std::make_shared<glm::vec2>(), name)).first;
+    return vec2s.emplace_back(std::make_pair(std::make_shared<glm::vec2>(), name)).first;
 }

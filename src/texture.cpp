@@ -1,8 +1,5 @@
 #include <vector>
-#include <future>
 #include "texture.h"
-#include "global.h"
-#include "timer.h"
 
 Texture::Texture()
         : Width(0), Height(0), Internal_Format(GL_RGB), Image_Format(GL_RGB),

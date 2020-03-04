@@ -25,8 +25,7 @@ public :
         this->model = glm::rotate(this->model, this->angle,
                                   glm::vec3(0.0f, 0.0f, 1.0f));
         // Move origin back
-        this->model = glm::translate(this->model,
-                                     glm::vec3(-0.5f * this->size, 0.0f));
+        this->model = glm::translate(this->model,glm::vec3(-0.5f * this->size, 0.0f));
         // Last scale
         this->model = glm::scale(this->model, glm::vec3(this->size, 1.0f));
     };

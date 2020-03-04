@@ -1,14 +1,14 @@
 #include "game.h"
 
-#include "global.h"
+#include "globals.h"
 #include <entt/entt.hpp>
 #include <SimplexNoise/src/SimplexNoise.h>
 
 Game::Game()
 {
 
-    auto midWidth = 10. * static_cast<int>(global::camera->dim.x / 2 + 32);
-    auto midHeight = 10. * static_cast<int>(global::camera->dim.y / 2 + 32);
+    auto midWidth = 10. * static_cast<int>(globals::camera->dim.x / 2 + 32);
+    auto midHeight = 10. * static_cast<int>(globals::camera->dim.y / 2 + 32);
     for (int x = -midWidth; x < midWidth; x += 32)
     {
         for (int y = -midHeight; y < midHeight; y += 32)
@@ -52,30 +52,30 @@ void Game::processInput(GLfloat dt)
 {
     // translation
     if (keys[GLFW_KEY_W])
-        global::camera->pos.y -= Settings::camSpeed * dt;
+        globals::camera->pos.y -= Settings::camSpeed * dt;
     if (keys[GLFW_KEY_S])
-        global::camera->pos.y += Settings::camSpeed * dt;
+        globals::camera->pos.y += Settings::camSpeed * dt;
     if (keys[GLFW_KEY_D])
-        global::camera->pos.x += Settings::camSpeed * dt;
+        globals::camera->pos.x += Settings::camSpeed * dt;
     if (keys[GLFW_KEY_A])
-        global::camera->pos.x -= Settings::camSpeed * dt;
+        globals::camera->pos.x -= Settings::camSpeed * dt;
 
     // rotation
     if (keys[GLFW_KEY_Q])
-        global::camera->rot -= dt;
+        globals::camera->rot -= dt;
     if (keys[GLFW_KEY_E])
-        global::camera->rot += dt;
+        globals::camera->rot += dt;
 
     if (keys[GLFW_KEY_R])
     {
-        global::camera->rot = 0;
-        global::camera->pos = glm::vec3(0, 0, 1.0);
+        globals::camera->rot = 0;
+        globals::camera->pos = glm::vec3(0, 0, 1.0);
     }
 }
 
 void Game::render()
 {
-    glm::mat4 view = global::camera->getView();
+    glm::mat4 view = globals::camera->getView();
     ResourceManager::GetShader("sprite").SetMatrix4("view", view);
     this->map->render();
 }
@@ -95,8 +95,8 @@ float Game::getRandomReal(float min, float max)
 
 bool Game::frustumCulled(const position &pos, const size &siz)
 {
-    return pos.x > global::camera->pos.x + siz.x + global::camera->pos.z * global::camera->dim.x / 2 ||
-           pos.x < global::camera->pos.x - siz.x - global::camera->pos.z * global::camera->dim.x / 2 ||
-           pos.y > global::camera->pos.y + siz.y + global::camera->pos.z * global::camera->dim.y / 2 ||
-           pos.y < global::camera->pos.y - siz.y - global::camera->pos.z * global::camera->dim.y / 2;
+    return pos.x > globals::camera->pos.x + siz.x + globals::camera->pos.z * globals::camera->dim.x / 2 ||
+           pos.x < globals::camera->pos.x - siz.x - globals::camera->pos.z * globals::camera->dim.x / 2 ||
+           pos.y > globals::camera->pos.y + siz.y + globals::camera->pos.z * globals::camera->dim.y / 2 ||
+           pos.y < globals::camera->pos.y - siz.y - globals::camera->pos.z * globals::camera->dim.y / 2;
 }

@@ -7,7 +7,7 @@
 #include "src/resource_manager.h"
 #include "src/settings.h"
 #include "src/camera.h"
-#include "src/global.h"
+#include "src/globals.h"
 
 constexpr int WIDTH = 1280;
 constexpr int HEIGHT = 720;
@@ -19,9 +19,9 @@ void errorCallback(int error, const char *description)
 
 void framebufferSizeCallback(GLFWwindow *window, int width, int height)
 {
-    global::camera->dim = glm::vec2(width, height);
+    globals::camera->dim = glm::vec2(width, height);
     ResourceManager::GetShader("sprite").SetMatrix4("projection",
-                                                    global::camera->getProjection());
+                                                    globals::camera->getProjection());
 
     glViewport(0, 0, width, height);
     glfwSwapBuffers(window);
@@ -29,14 +29,14 @@ void framebufferSizeCallback(GLFWwindow *window, int width, int height)
 
 static void cursorPosCallback(GLFWwindow *, double x, double y)
 {
-    global::game->mousePos = glm::vec2(2 * x / global::camera->dim.x,
-                                       2 * y / global::camera->dim.y);
+    globals::game->mousePos = glm::vec2(2 * x / globals::camera->dim.x,
+                                       2 * y / globals::camera->dim.y);
 }
 
 void scrollCallback(GLFWwindow *, double, double yOffset)
 {
-    global::camera->pos.z = glm::clamp(
-            global::camera->pos.z + (yOffset > 0 ? 0.1f : -0.1f), 0.1f, 10.f);
+    globals::camera->pos.z = glm::clamp(
+            globals::camera->pos.z + (yOffset > 0 ? 0.1f : -0.1f), 0.1f, 10.f);
 }
 
 void keyCallback(GLFWwindow *window, int key, int, int action, int)
@@ -47,9 +47,9 @@ void keyCallback(GLFWwindow *window, int key, int, int action, int)
     if (key >= 0 && key < 1024)
     {
         if (action == GLFW_PRESS)
-            global::game->keys[key] = GL_TRUE;
+            globals::game->keys[key] = GL_TRUE;
         else if (action == GLFW_RELEASE)
-            global::game->keys[key] = GL_FALSE;
+            globals::game->keys[key] = GL_FALSE;
     }
 }
 
@@ -109,9 +109,9 @@ int main()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // order is important here, game constructor will call camera first.
-    global::ui = std::make_unique<Ui>(window, glsl_version);
-    global::camera = std::make_unique<Camera>(width, height);
-    global::game = std::make_unique<Game>();
+    globals::ui = std::make_unique<Ui>(window, glsl_version);
+    globals::camera = std::make_unique<Camera>(width, height);
+    globals::game = std::make_unique<Game>();
 
     float deltaTime{};
     float lastFrame{};
@@ -133,20 +133,20 @@ int main()
         lastFrame = currentFrame;
         glfwPollEvents();
 
-        global::game->processInput(deltaTime);
-        global::game->update(deltaTime);
+        globals::game->processInput(deltaTime);
+        globals::game->update(deltaTime);
 
         glClearColor(0.2, 0.2, 0.2, 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        global::game->render();
-        global::ui->render();
+        globals::game->render();
+        globals::ui->render();
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         glfwSwapBuffers(window);
     }
 
-    global::game->destroy();
+    globals::game->destroy();
     ResourceManager::Clear();
     Ui::destroy();
 

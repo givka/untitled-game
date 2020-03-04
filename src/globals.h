@@ -7,7 +7,8 @@
 #include "map.h"
 
 class Game;
-namespace global
+class Ui;
+namespace globals
 {
     inline std::unique_ptr<Game> game;
     inline std::unique_ptr<Ui> ui;

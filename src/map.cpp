@@ -23,15 +23,15 @@ Map::Map()
             .SetInteger("image", 0);
 
     ResourceManager::GetShader("sprite")
-            .SetMatrix4("projection", global::camera->getProjection());
+            .SetMatrix4("projection", globals::camera->getProjection());
 
     ResourceManager::LoadTexture("../data/textures/square.png", GL_TRUE,
                                  "face");
 
-    float zoom = global::camera->pos.z;
+//    float zoom = globals::camera->pos.z;
     this->showed = 0;
 
-    static auto timer = global::ui->addTimer("Map::Map()");
+    static auto timer = globals::ui->addTimer("Map::Map()");
 
     timer->reset();
 
@@ -60,7 +60,7 @@ void Map::render()
 {
     this->updateFutures();
 
-    static auto timer = global::ui->addTimer("Map::render()");
+    static auto timer = globals::ui->addTimer("Map::render()");
     timer->reset();
 
     this->addNeighbourChunks();
@@ -71,9 +71,9 @@ void Map::render()
 void Map::addNeighbourChunks()
 {
 
-    static auto camPos = global::ui->addVec2("Map::render() camPos");
-    camPos->x = (int) (global::camera->pos.x / Chunk::SIZE / Tile::SIZE);
-    camPos->y = (int) (global::camera->pos.y / Chunk::SIZE / Tile::SIZE);
+    static auto camPos = globals::ui->addVec2("Map::render() camPos");
+    camPos->x = (int) (globals::camera->pos.x / Chunk::SIZE / Tile::SIZE);
+    camPos->y = (int) (globals::camera->pos.y / Chunk::SIZE / Tile::SIZE);
 
     this->showed = 0;
 
@@ -98,7 +98,7 @@ void Map::addNeighbourChunks()
                 continue;
 
             auto p = glm::vec2(x, y);
-            static auto t = global::ui->addTimer(
+            static auto t = globals::ui->addTimer(
                     fmt::format("Chunk: ({},{})", x, y));
             this->futures.insert(
                     std::make_pair(p, std::async(std::launch::async,

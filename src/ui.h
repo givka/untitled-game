@@ -11,6 +11,9 @@
 #include <glm/vec2.hpp>
 #include "settings.h"
 #include "timer.h"
+#include "globals.h"
+#include <glm/gtx/string_cast.hpp>
+
 
 class Ui
 {
@@ -21,8 +24,8 @@ public:
 
     static void destroy();
 
-    std::shared_ptr<Timer>& addTimer(const std::string &name);
-    std::shared_ptr<glm::vec2>& addVec2(const std::string &name);
+    std::shared_ptr<Timer> addTimer(const std::string &name);
+    std::shared_ptr<glm::vec2> addVec2(const std::string &name);
 
     std::vector<std::pair<std::shared_ptr<Timer>, std::string>> timers;
     std::vector<std::pair<std::shared_ptr<glm::vec2>, std::string>> vec2s;

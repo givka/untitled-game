@@ -1,7 +1,7 @@
 
 #include <SimplexNoise/src/SimplexNoise.h>
 #include "chunk.h"
-#include "global.h"
+#include "globals.h"
 
 float Chunk::frequency{ 0.001 };
 float Chunk::amplitude{ 1.0 };
