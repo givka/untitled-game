@@ -44,7 +44,7 @@ void Ui::render()
 
         ImGui::Separator();
 
-        ImGui::SliderFloat("Frequency", &Chunk::frequency, 0.0001, 0.1);
+        ImGui::SliderFloat("Frequency", &Chunk::frequency, 0.0001, 0.01);
         ImGui::SliderFloat("Amplitude", &Chunk::amplitude, 0.001, 10.);
         ImGui::SliderFloat("Lacunarity", &Chunk::lacunarity, 0.001, 10.);
         ImGui::SliderFloat("Persistence", &Chunk::persistence, 0.001, 10.);

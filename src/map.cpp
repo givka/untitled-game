@@ -5,15 +5,6 @@
 int Map::NBR_CHUNKS_X = 1;
 int Map::NBR_CHUNKS_Y = 1;
 
-std::unique_ptr<Chunk> Map::test(const glm::vec2 &pos,
-                                 const std::shared_ptr<Timer> &timer)
-{
-    timer->reset();
-    auto chunk = std::make_unique<Chunk>(pos);
-    timer->stop();
-    return chunk;
-}
-
 Map::Map()
 {
     ResourceManager::LoadShader("../data/shaders/sprite.vert",

@@ -1,11 +1,11 @@
 #include "chunk.h"
 #include "resource_manager.h"
 
-float Chunk::frequency{ 0.001 };
+float Chunk::frequency{ 0.0001 };
 float Chunk::amplitude{ 1.0 };
 float Chunk::lacunarity{ 2.0 };
 float Chunk::persistence{ 0.5 };
-int Chunk::octaves{ 8 };
+int Chunk::octaves{ 12 };
 
 Chunk::Chunk(glm::vec2 pos)
         : pos(pos)
@@ -15,7 +15,7 @@ Chunk::Chunk(glm::vec2 pos)
         for (int y = (int) this->pos.y * Chunk::SIZE; y < (int) this->pos.y * Chunk::SIZE + Chunk::SIZE; ++y)
         {
             auto noise = Chunk::getNoise(glm::vec2(x, y));
-            float alpha = noise.z / Tile::SIZE / Tile::SIZE;
+            float alpha = noise.z * Chunk::frequency; // -1 to 1
 
             auto position = glm::vec2(x, y);
             auto size = glm::vec2(Tile::SIZE);
@@ -68,7 +68,7 @@ glm::vec3 Chunk::getNoise(const glm::vec2 &position)
                                Chunk::lacunarity,
                                Chunk::persistence };
 
-    return glm::vec3(position, Tile::SIZE * Tile::SIZE * simplexNoise.fractal(Chunk::octaves, position.x, position.y));
+    return glm::vec3(position, 1 / Chunk::frequency * simplexNoise.fractal(Chunk::octaves, position.x, position.y));
 }
 
 void Chunk::createRenderer()
