@@ -30,7 +30,7 @@ void framebufferSizeCallback(GLFWwindow *window, int width, int height)
 static void cursorPosCallback(GLFWwindow *, double x, double y)
 {
     //FIXME: hidpi is divided by 2
-    globals::game->mousePos = glm::vec2(x / globals::camera->dim.x, y / globals::camera->dim.y);
+    globals::game->mousePos = -1.f + 2.f * glm::vec2(x / globals::camera->dim.x, y / globals::camera->dim.y);
 }
 
 void scrollCallback(GLFWwindow *, double, double yOffset)

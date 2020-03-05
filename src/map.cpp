@@ -64,7 +64,7 @@ void Map::render()
             .SetVector3f("sun", settings::sunPos);
 
     ResourceManager::GetShader("sprite")
-            .SetFloat("time",glfwGetTime());
+            .SetFloat("time", glfwGetTime());
 
     static auto timer = globals::ui->addTimer("Map::render()");
     timer->reset();
@@ -94,9 +94,8 @@ void Map::addNeighbourChunks()
 
             if (itChunk != this->chunks.end())
             {
-                itChunk->second->renderer->drawTiles(
-                        ResourceManager::GetTexture("face"));
-                this->showed += itChunk->second->models.size();
+                itChunk->second->render();
+                this->showed += itChunk->second->numberOfTiles();
                 continue;
             }
 
@@ -104,12 +103,14 @@ void Map::addNeighbourChunks()
                 continue;
 
             auto p = glm::vec2(x, y);
-            static auto t = globals::ui->addTimer(
-                    fmt::format("Chunk: ({},{})", x, y));
-            this->futures.insert(
-                    std::make_pair(p, std::async(std::launch::async,
-                                                 &Map::test, this, p,
-                                                 t)));
+            auto t = globals::ui->addTimer(fmt::format("Chunk: ({},{})", x, y));
+            this->futures.insert(std::make_pair(p, std::async(std::launch::async, [p, t]
+            {
+                t->reset();
+                auto chunk = std::make_unique<Chunk>(p);
+                t->stop();
+                return chunk;
+            })));
         }
     }
 }
@@ -124,11 +125,7 @@ void Map::updateFutures()
         else
         {
             auto chunk = it->second.get();
-            chunk->renderer = std::make_unique<SpriteRenderer>(
-                    ResourceManager::GetShader("sprite"),
-                    chunk->models,
-                    chunk->colors,
-                    chunk->normals);
+            chunk->createRenderer();
             this->chunks.insert(std::make_pair(chunk->pos, std::move(chunk)));
             it = this->futures.erase(it);
         }

@@ -13,23 +13,29 @@
 class SpriteRenderer
 {
 public:
-    // Constructor (inits shaders/shapes)
     SpriteRenderer() = default;
 
-    SpriteRenderer(Shader &shader, std::vector<glm::mat4> &models,
-                   std::vector<glm::vec4> &colors, std::vector<glm::vec3> &normals);
+    SpriteRenderer(Shader &shader,
+                   const std::vector<glm::mat4> &models,
+                   const std::vector<glm::vec4> &colors,
+                   const std::vector<glm::vec3> &normals);
 
     ~SpriteRenderer();
 
     void drawTiles(Texture &texture);
 
+    void updateVBOs(const std::vector<glm::mat4> &models,
+                    const std::vector<glm::vec4> &colors,
+                    const std::vector<glm::vec3> &normals);
+
     Shader shader{};
 private:
-    std::vector<glm::mat4> models{};
-    std::vector<glm::vec4> colors{};
-    std::vector<glm::vec3> normals{};
-
     GLuint quadVAO{};
+    GLuint modelsVBO{};
+    GLuint colorsVBO{};
+    GLuint normalsVBO{};
 
-    void initRenderData();
+    void initRenderData(const std::vector<glm::mat4> &models,
+                        const std::vector<glm::vec4> &colors,
+                        const std::vector<glm::vec3> &normals);
 };

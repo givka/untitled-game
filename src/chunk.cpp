@@ -1,6 +1,5 @@
-#include <iostream>
 #include "chunk.h"
-#include "settings.h"
+#include "resource_manager.h"
 
 float Chunk::frequency{ 0.001 };
 float Chunk::amplitude{ 1.0 };
@@ -11,17 +10,14 @@ int Chunk::octaves{ 8 };
 Chunk::Chunk(glm::vec2 pos)
         : pos(pos)
 {
-
-    for (int x = -Chunk::SIZE / 2 + (int) this->pos.x * Chunk::SIZE;
-         x < Chunk::SIZE / 2 + (int) this->pos.x * Chunk::SIZE; ++x)
+    for (int x = (int) this->pos.x * Chunk::SIZE; x < (int) this->pos.x * Chunk::SIZE + Chunk::SIZE; ++x)
     {
-        for (int y = -Chunk::SIZE / 2 + (int) this->pos.y * Chunk::SIZE;
-             y < Chunk::SIZE / 2 + (int) this->pos.y * Chunk::SIZE; ++y)
+        for (int y = (int) this->pos.y * Chunk::SIZE; y < (int) this->pos.y * Chunk::SIZE + Chunk::SIZE; ++y)
         {
             auto noise = Chunk::getNoise(glm::vec2(x, y));
             float alpha = noise.z / Tile::SIZE / Tile::SIZE;
 
-            auto position = Tile::SIZE * glm::vec2(x, y) - Tile::SIZE / 2;
+            auto position = glm::vec2(x, y);
             auto size = glm::vec2(Tile::SIZE);
             auto angle = 0.0f;
             auto color = glm::vec4(Tile::getColor(noise.z), alpha);
@@ -29,7 +25,7 @@ Chunk::Chunk(glm::vec2 pos)
 
             auto tile = std::make_shared<Tile>(position, size, angle, color, normal);
 
-            this->tiles.insert(std::make_pair(glm::vec2(x, y), tile));
+            this->tiles.push_back(tile);
 
             this->models.push_back(tile->model);
             this->colors.push_back(tile->color);
@@ -74,5 +70,49 @@ glm::vec3 Chunk::getNoise(const glm::vec2 &position)
 
     return glm::vec3(position, Tile::SIZE * Tile::SIZE * simplexNoise.fractal(Chunk::octaves, position.x, position.y));
 }
+
+void Chunk::createRenderer()
+{
+    this->renderer = std::make_unique<SpriteRenderer>(ResourceManager::GetShader("sprite"),
+                                                      this->models, this->colors, this->normals);
+
+    //this->getTile(32, 32)->color.w = 1.0;
+    //this->colors[32 * Chunk::SIZE + 32].w = 1.0;
+
+    /*
+    for (int y = 0; y < Chunk::SIZE; ++y)
+    {
+        for (int x = 0; x < Chunk::SIZE; ++x)
+        {
+            auto index = Chunk::getIndex(x, y);
+            auto tile = this->tiles[index];
+
+            if (tile->color.w > -0.001)
+            {
+                tile->color.w = -0.001f;
+                tile->normal = glm::vec3(0, 0, 1);
+            }
+
+            this->models[index] = tile->model;
+            this->colors[index] = tile->color;
+            this->normals[index] = tile->normal;
+        }
+    }
+
+    this->renderer->updateVBOs(this->models, this->colors, this->normals);
+    */
+}
+
+void Chunk::render()
+{
+    this->renderer->drawTiles(ResourceManager::GetTexture("face"));
+}
+
+int Chunk::getIndex(int x, int y)
+{
+    assert(x >= 0 && x < Chunk::SIZE && y >= 0 && y < Chunk::SIZE);
+    return y * Chunk::SIZE + x;
+}
+
 
 

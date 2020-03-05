@@ -85,7 +85,7 @@ void Game::processInput(GLfloat dt)
 
         for (auto&[pos, chunk] :this->map->chunks)
         {
-            chunk->renderer->shader = ResourceManager::GetShader("sprite");
+            chunk->reloadShader();
         }
     }
 

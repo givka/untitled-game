@@ -13,18 +13,14 @@ public :
          const glm::vec3 &normal)
             : position(position), size(size), angle(angle), color(color), normal(normal)
     {
-
         // Prepare transformations
         this->model = glm::mat4(1.0f);
         // First translate (transformations are: scale happens first, then rotation and then final translation happens; reversed order)
-        this->model = glm::translate(this->model,
-                                     glm::vec3(this->position, 0.0f));
+        this->model = glm::translate(this->model, glm::vec3(this->position * this->size - this->size / 2.f, 0.0f));
         // Move origin of rotation to center of quad
-        this->model = glm::translate(this->model,
-                                     glm::vec3(0.5f * this->size, 0.0f));
+        this->model = glm::translate(this->model, glm::vec3(0.5f * this->size, 0.0f));
         // Then rotate
-        this->model = glm::rotate(this->model, this->angle,
-                                  glm::vec3(0.0f, 0.0f, 1.0f));
+        this->model = glm::rotate(this->model, this->angle, glm::vec3(0.0f, 0.0f, 1.0f));
         // Move origin back
         this->model = glm::translate(this->model, glm::vec3(-0.5f * this->size, 0.0f));
         // Last scale

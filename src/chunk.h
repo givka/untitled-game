@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include "tile.h"
 #include "sprite_renderer.h"
+#include "resource_manager.h"
 
 class Chunk
 {
@@ -18,19 +19,29 @@ public:
 
     glm::vec2 pos;
 
-    std::unordered_map<glm::vec2, std::shared_ptr<Tile>> tiles;
-
     static float frequency;
     static float amplitude;
     static float lacunarity;
     static float persistence;
     static int octaves;
 
+    void createRenderer();
+
+    int numberOfTiles() { return this->tiles.size(); }
+
+    void render();
+
+    void reloadShader() { this->renderer->shader = ResourceManager::GetShader("sprite"); }
+
+    static int getIndex(int x, int y);
+
+private:
+    std::unique_ptr<SpriteRenderer> renderer{};
+
+    std::vector<std::shared_ptr<Tile>> tiles;
     std::vector<glm::mat4> models;
     std::vector<glm::vec4> colors;
     std::vector<glm::vec3> normals;
-
-    std::unique_ptr<SpriteRenderer> renderer{};
 
     static glm::vec3 getNoise(const glm::vec2 &pos);
 
